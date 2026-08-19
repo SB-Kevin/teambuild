@@ -108,6 +108,8 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
 const STORAGE_KEY = 'weiya-2026-dashboard';
 const seriesColors = {open:'#2a78d6', host:'#eb6834', mid:'#1baf7a', final:'#eda100'};
@@ -144,42 +146,72 @@ function setStatus(msg, isErr){
   el.style.color = isErr ? 'var(--danger)' : 'var(--text-muted)';
 }
 
-async function loadData(){
-  try{
-    const result = await window.storage.get(STORAGE_KEY, false);
-    if(result && result.value){
-      const parsed = JSON.parse(result.value);
-      if(parsed && parsed.categories && parsed.selected){
-        data = parsed;
-        setStatus('已載入上次儲存的資料');
-        renderAll();
-        return;
-      }
+// 到 https://console.firebase.google.com 建立專案並啟用 Realtime Database，
+// 把「專案設定 > 你的應用程式」拿到的設定物件貼在下面取代 YOUR_FIREBASE_CONFIG。
+// 沒有填設定前，會自動退回「只存在自己瀏覽器」的本機模式。
+const firebaseConfig = {
+  apiKey: "AIzaSyBAsLVQswEWMObf81zeJqBGiB1tHY7edng",
+  databaseURL: "https://weiya-3a691-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "weiya-3a691"
+};
+
+const isFirebaseConfigured = firebaseConfig && typeof firebaseConfig === 'object'
+  && firebaseConfig.apiKey && firebaseConfig.databaseURL;
+
+let dataRef = null;
+
+function initSharedMode(){
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  dataRef = db.ref(STORAGE_KEY);
+  setStatus('連線中...');
+  dataRef.on('value', (snapshot)=>{
+    const val = snapshot.val();
+    if(val && val.categories && val.selected){
+      data = val;
+      renderAll();
+      setStatus('已連線，所有人看到同一份即時資料');
+    }else{
+      dataRef.set(data).then(()=> setStatus('已建立共用資料，所有人看到同一份即時資料'));
     }
-    setStatus('尚無儲存資料，顯示預設藝人清單');
-  }catch(e){
-    setStatus('尚無儲存資料，顯示預設藝人清單');
-  }
-  renderAll();
+  }, (err)=>{
+    setStatus('連線失敗，請確認 Firebase 設定與資料庫權限', true);
+  });
 }
 
-async function saveData(){
-  setStatus('儲存中...');
+function initLocalMode(){
   try{
-    const result = await window.storage.set(STORAGE_KEY, JSON.stringify(data), false);
-    if(result){
-      setStatus('已儲存，重新整理後仍會保留');
-    }else{
-      setStatus('儲存失敗，請再試一次', true);
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(parsed && parsed.categories && parsed.selected){ data = parsed; }
     }
-  }catch(e){
-    setStatus('儲存失敗，請再試一次', true);
-  }
+  }catch(e){}
+  setStatus('尚未設定共享資料庫，目前僅存在你自己的瀏覽器，其他人看不到這裡的修改（見程式碼開頭的 Firebase 設定說明）', true);
+  renderAll();
 }
 
 function scheduleSave(){
   if(saveTimer) clearTimeout(saveTimer);
   saveTimer = setTimeout(saveData, 300);
+}
+
+function saveData(){
+  if(isFirebaseConfigured && dataRef){
+    dataRef.set(data).catch(()=> setStatus('儲存失敗，請再試一次', true));
+    return;
+  }
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    setStatus('已儲存在本機瀏覽器（尚未設定共享資料庫，其他人看不到）', true);
+  }catch(e){
+    setStatus('儲存失敗，請再試一次', true);
+  }
+}
+
+function loadData(){
+  if(isFirebaseConfigured){ initSharedMode(); }
+  else{ initLocalMode(); }
 }
 
 function metricCard(label, value){
