@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>91APP 2026 尾牙藝人比較儀表板</title>
+<style>
+  :root{
+    --bg:#f6f5f1; --card:#ffffff; --border:#e2e0d8; --border-strong:#c9c6ba;
+    --text:#242320; --text-2:#6b6a63; --text-muted:#98968c;
+    --accent:#2a78d6; --danger:#c1392b;
+    --c-open:#2a78d6; --c-host:#eb6834; --c-mid:#1baf7a; --c-final:#eda100;
+    --radius:8px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,"PingFang TC","Noto Sans TC",Segoe UI,Helvetica,Arial,sans-serif;
+    padding:24px 16px 64px;
+  }
+  .wrap{max-width:920px;margin:0 auto;}
+  h1{font-size:20px;font-weight:600;margin:0 0 4px;}
+  .sub{font-size:13px;color:var(--text-2);margin:0 0 20px;}
+  .status{font-size:12px;color:var(--text-muted);margin:0 0 20px;min-height:16px;}
+  .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+  .metric{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px;}
+  .metric p{margin:0;}
+  .metric .l{font-size:12px;color:var(--text-2);margin-bottom:4px;}
+  .metric .v{font-size:22px;font-weight:600;}
+  .section-title{font-size:14px;font-weight:600;color:var(--text-2);margin:24px 0 10px;text-transform:none;}
+  .overview{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:8px;}
+  @media (max-width:640px){.overview{grid-template-columns:1fr;}}
+  .ovcard{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px;}
+  .ovcard .cap{font-size:13px;color:var(--text-2);margin:0 0 10px;}
+  .cat{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:14px;}
+  .cat h2{font-size:15px;font-weight:600;margin:0 0 10px;display:flex;align-items:center;gap:8px;}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+  .row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--border);flex-wrap:wrap;}
+  .row:last-of-type{border-bottom:none;}
+  .row .name{flex:1;min-width:80px;font-size:14px;}
+  .row .lbl{font-size:11px;color:var(--text-muted);white-space:nowrap;}
+  input[type=text],input[type=number]{
+    border:0.5px solid var(--border-strong); border-radius:6px; padding:5px 8px;
+    font-size:13px; background:#fff; color:var(--text);
+  }
+  input[type=number]{width:64px;}
+  input[type=range]{width:80px;}
+  button{
+    border:0.5px solid var(--border-strong); background:#fff; border-radius:6px;
+    padding:6px 10px; font-size:13px; cursor:pointer; color:var(--text);
+  }
+  button:hover{background:var(--bg);}
+  button:active{transform:scale(0.98);}
+  .icon-btn{width:28px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--danger);border-color:var(--border);}
+  .surprise-out{font-size:13px;font-weight:600;min-width:16px;text-align:center;}
+  .addrow{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .addrow input[type=text]{flex:1;min-width:100px;}
+  .err{color:var(--danger);font-size:12px;margin-left:4px;display:none;}
+  .chartbox{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px;margin-top:8px;}
+  .chartbox p{font-size:13px;color:var(--text-2);margin:0 0 12px;}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;font-size:12px;color:var(--text-2);}
+  .legend span{display:flex;align-items:center;gap:5px;}
+  .reset{margin-top:8px;}
+  .donut-wrap{position:relative;height:220px;}
+  .donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;}
+  .donut-center .v{font-size:22px;font-weight:600;line-height:1.1;}
+  .donut-center .l{font-size:11px;color:var(--text-2);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>91APP 2026 尾牙藝人比較儀表板</h1>
+  <p class="sub">開場表演 / 主持人 / 中場表演 / 壓軸，四段落各自比較預算與驚訝程度，資料會自動儲存。</p>
+  <p class="status" id="status"></p>
+
+  <div class="summary" id="summary"></div>
+
+  <p class="section-title">整體總覽 — 目前選擇的組合</p>
+  <div class="overview">
+    <div class="ovcard">
+      <p class="cap">預算分配（依段落占比）</p>
+      <div class="donut-wrap">
+        <canvas id="donutChart" role="img" aria-label="甜甜圈圖：顯示開場、主持、中場、壓軸四段落各自佔總預算的比例"></canvas>
+        <div class="donut-center"><div class="v" id="donutCenterV">0 萬</div><div class="l">總預算</div></div>
+      </div>
+    </div>
+    <div class="ovcard">
+      <p class="cap">驚訝程度分布（四段落）</p>
+      <div style="position:relative;height:220px;">
+        <canvas id="radarChart" role="img" aria-label="雷達圖：顯示開場、主持、中場、壓軸四段落目前選擇藝人的驚訝程度，滿分10分"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <p class="section-title">調整各段落藝人</p>
+  <div id="cats"></div>
+
+  <p class="section-title">所有候選藝人比較</p>
+  <div class="chartbox">
+    <p>預算（萬元）vs 驚訝程度（1-10），實心圈為目前已選擇</p>
+    <div class="legend" id="legend"></div>
+    <div style="position:relative;height:280px;">
+      <canvas id="chart" role="img" aria-label="散佈圖：X軸為預算萬元，Y軸為驚訝程度1到10分，四種顏色分別代表開場、主持、中場、壓軸">散佈圖顯示各候選藝人的預算與驚訝程度分布。</canvas>
+    </div>
+  </div>
+
+  <button class="reset" id="resetBtn">還原成預設藝人清單</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const STORAGE_KEY = 'weiya-2026-dashboard';
+const seriesColors = {open:'#2a78d6', host:'#eb6834', mid:'#1baf7a', final:'#eda100'};
+
+const defaultData = {
+  categories: [
+    {key:'open', label:'開場表演', options:[
+      {id:1,name:'芒果醬',budget:20,surprise:7}
+    ]},
+    {key:'host', label:'主持人', options:[
+      {id:2,name:'邰智源',budget:40,surprise:9},
+      {id:3,name:'阿Ken',budget:40,surprise:8},
+      {id:4,name:'瑪利歐',budget:10,surprise:6},
+      {id:5,name:'梅賢智',budget:8,surprise:5}
+    ]},
+    {key:'mid', label:'中場表演', options:[
+      {id:6,name:'李聖傑',budget:20,surprise:5}
+    ]},
+    {key:'final', label:'壓軸', options:[
+      {id:7,name:'怕胖團',budget:40,surprise:8}
+    ]}
+  ],
+  selected: {open:1, host:2, mid:6, final:7},
+  nextId: 100
+};
+
+let data = JSON.parse(JSON.stringify(defaultData));
+let chart, donutChart, radarChart;
+let saveTimer = null;
+
+function setStatus(msg, isErr){
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.style.color = isErr ? 'var(--danger)' : 'var(--text-muted)';
+}
+
+async function loadData(){
+  try{
+    const result = await window.storage.get(STORAGE_KEY, false);
+    if(result && result.value){
+      const parsed = JSON.parse(result.value);
+      if(parsed && parsed.categories && parsed.selected){
+        data = parsed;
+        setStatus('已載入上次儲存的資料');
+        renderAll();
+        return;
+      }
+    }
+    setStatus('尚無儲存資料，顯示預設藝人清單');
+  }catch(e){
+    setStatus('尚無儲存資料，顯示預設藝人清單');
+  }
+  renderAll();
+}
+
+async function saveData(){
+  setStatus('儲存中...');
+  try{
+    const result = await window.storage.set(STORAGE_KEY, JSON.stringify(data), false);
+    if(result){
+      setStatus('已儲存，重新整理後仍會保留');
+    }else{
+      setStatus('儲存失敗，請再試一次', true);
+    }
+  }catch(e){
+    setStatus('儲存失敗，請再試一次', true);
+  }
+}
+
+function scheduleSave(){
+  if(saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveData, 300);
+}
+
+function metricCard(label, value){
+  return '<div class="metric"><p class="l">'+label+'</p><p class="v">'+value+'</p></div>';
+}
+
+function catCard(cat){
+  const rows = cat.options.map(o=>{
+    const checked = data.selected[cat.key]===o.id ? 'checked' : '';
+    const delBtn = cat.options.length>1
+      ? '<button class="icon-btn" aria-label="移除'+o.name+'" onclick="removeOpt(\''+cat.key+'\','+o.id+')">✕</button>'
+      : '<span style="width:28px;display:inline-block;"></span>';
+    return '<div class="row">' +
+      '<input type="radio" name="sel-'+cat.key+'" '+checked+' onchange="selectOpt(\''+cat.key+'\','+o.id+')" style="width:16px;height:16px;">' +
+      '<span class="name">'+escapeHtml(o.name)+'</span>' +
+      '<span class="lbl">預算</span>' +
+      '<input type="number" value="'+o.budget+'" min="0" step="1" onchange="editField(\''+cat.key+'\','+o.id+',\'budget\',this.value)">' +
+      '<span class="lbl">萬</span>' +
+      '<span class="lbl">驚訝</span>' +
+      '<input type="range" min="1" max="10" step="1" value="'+o.surprise+'" oninput="this.nextElementSibling.textContent=this.value" onchange="editField(\''+cat.key+'\','+o.id+',\'surprise\',this.value)">' +
+      '<span class="surprise-out">'+o.surprise+'</span>' +
+      delBtn +
+      '</div>';
+  }).join('');
+  return '<div class="cat">' +
+    '<h2><span class="dot" style="background:'+seriesColors[cat.key]+'"></span>'+cat.label+'</h2>' +
+    rows +
+    '<div class="addrow">' +
+      '<input type="text" placeholder="新藝人姓名" id="name-'+cat.key+'">' +
+      '<input type="number" placeholder="預算(萬)" id="budget-'+cat.key+'" min="0" step="1">' +
+      '<span class="lbl">驚訝</span>' +
+      '<input type="range" min="1" max="10" step="1" value="5" id="surprise-'+cat.key+'" oninput="document.getElementById(\'surprise-out-'+cat.key+'\').textContent=this.value">' +
+      '<span class="surprise-out" id="surprise-out-'+cat.key+'">5</span>' +
+      '<button onclick="addOpt(\''+cat.key+'\')">+ 新增藝人</button>' +
+      '<span class="err" id="err-'+cat.key+'">請輸入姓名</span>' +
+    '</div>' +
+  '</div>';
+}
+
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function currentSelection(){
+  return data.categories.map(cat=>({
+    cat, opt: cat.options.find(x=>x.id===data.selected[cat.key])
+  })).filter(x=>x.opt);
+}
+
+function renderAll(){
+  document.getElementById('cats').innerHTML = data.categories.map(catCard).join('');
+  const sel = currentSelection();
+  const totalBudget = sel.reduce((s,x)=>s+x.opt.budget,0);
+  const totalSurprise = sel.reduce((s,x)=>s+x.opt.surprise,0);
+  const avgSurprise = sel.length ? (totalSurprise/sel.length).toFixed(1) : '0.0';
+  document.getElementById('summary').innerHTML =
+    metricCard('目前組合總預算', totalBudget.toLocaleString()+' 萬') +
+    metricCard('平均驚訝程度', avgSurprise+' / 10') +
+    metricCard('候選藝人總數', data.categories.reduce((s,c)=>s+c.options.length,0)+' 位');
+  document.getElementById('legend').innerHTML = data.categories.map(c=>
+    '<span><span class="dot" style="background:'+seriesColors[c.key]+'"></span>'+c.label+'</span>'
+  ).join('');
+  document.getElementById('donutCenterV').textContent = totalBudget.toLocaleString()+' 萬';
+  renderChart();
+  renderDonut(sel, totalBudget);
+  renderRadar(sel);
+}
+
+function renderChart(){
+  const datasets = data.categories.map(cat=>{
+    return {
+      label: cat.label,
+      data: cat.options.map(o=>({x:o.budget, y:o.surprise, id:o.id, name:o.name, sel: data.selected[cat.key]===o.id})),
+      backgroundColor: seriesColors[cat.key],
+      pointRadius: ctx => ctx.raw && ctx.raw.sel ? 9 : 5,
+      pointBorderColor: ctx => ctx.raw && ctx.raw.sel ? '#242320' : seriesColors[cat.key],
+      pointBorderWidth: ctx => ctx.raw && ctx.raw.sel ? 2 : 0
+    };
+  });
+  if(chart){ chart.data.datasets = datasets; chart.update(); return; }
+  chart = new Chart(document.getElementById('chart'), {
+    type: 'scatter',
+    data: { datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { title:{display:true, text:'預算（萬元）'}, min:0 },
+        y: { title:{display:true, text:'驚訝程度（1-10）'}, min:0, max:11 }
+      },
+      plugins: {
+        legend:{display:false},
+        tooltip:{ callbacks:{ label: ctx => ctx.raw.name+'：預算'+ctx.raw.x+'萬，驚訝'+ctx.raw.y+'分' } }
+      }
+    }
+  });
+}
+
+function renderDonut(sel, totalBudget){
+  const labels = sel.map(x=>x.cat.label);
+  const values = sel.map(x=>x.opt.budget);
+  const colors = sel.map(x=>seriesColors[x.cat.key]);
+  const names = sel.map(x=>x.opt.name);
+  if(donutChart){
+    donutChart.data.labels = labels;
+    donutChart.data.datasets[0].data = values;
+    donutChart.data.datasets[0].backgroundColor = colors;
+    donutChart.options.plugins.tooltip.callbacks.label = (ctx)=>{
+      const pct = totalBudget ? Math.round(ctx.raw/totalBudget*100) : 0;
+      return names[ctx.dataIndex]+'（'+labels[ctx.dataIndex]+'）：'+ctx.raw+' 萬，占'+pct+'%';
+    };
+    donutChart.update();
+    return;
+  }
+  donutChart = new Chart(document.getElementById('donutChart'), {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data: values, backgroundColor: colors, borderColor: '#ffffff', borderWidth: 2 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '68%',
+      plugins: {
+        legend: { display:false },
+        tooltip: { callbacks: { label: (ctx)=>{
+          const pct = totalBudget ? Math.round(ctx.raw/totalBudget*100) : 0;
+          return names[ctx.dataIndex]+'（'+labels[ctx.dataIndex]+'）：'+ctx.raw+' 萬，占'+pct+'%';
+        } } }
+      }
+    }
+  });
+}
+
+function renderRadar(sel){
+  const labels = sel.map(x=>x.cat.label);
+  const values = sel.map(x=>x.opt.surprise);
+  const names = sel.map(x=>x.opt.name);
+  if(radarChart){
+    radarChart.data.labels = labels;
+    radarChart.data.datasets[0].data = values;
+    radarChart.options.plugins.tooltip.callbacks.label = (ctx)=> names[ctx.dataIndex]+'：驚訝 '+ctx.raw+' 分';
+    radarChart.update();
+    return;
+  }
+  radarChart = new Chart(document.getElementById('radarChart'), {
+    type: 'radar',
+    data: {
+      labels,
+      datasets: [{
+        label: '驚訝程度',
+        data: values,
+        backgroundColor: 'rgba(42,120,214,0.15)',
+        borderColor: '#2a78d6',
+        borderWidth: 2,
+        pointBackgroundColor: '#2a78d6',
+        pointRadius: 4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: { r: { min:0, max:10, ticks:{ stepSize:2 } } },
+      plugins: {
+        legend: { display:false },
+        tooltip: { callbacks: { label: (ctx)=> names[ctx.dataIndex]+'：驚訝 '+ctx.raw+' 分' } }
+      }
+    }
+  });
+}
+
+function selectOpt(catKey,id){
+  data.selected[catKey]=id;
+  renderAll();
+  scheduleSave();
+}
+
+function editField(catKey,id,field,value){
+  const cat = data.categories.find(c=>c.key===catKey);
+  const o = cat.options.find(x=>x.id===id);
+  o[field] = Number(value);
+  renderAll();
+  scheduleSave();
+}
+
+function removeOpt(catKey,id){
+  const cat = data.categories.find(c=>c.key===catKey);
+  cat.options = cat.options.filter(x=>x.id!==id);
+  if(data.selected[catKey]===id){ data.selected[catKey]=cat.options[0].id; }
+  renderAll();
+  scheduleSave();
+}
+
+function addOpt(catKey){
+  const nameEl = document.getElementById('name-'+catKey);
+  const budgetEl = document.getElementById('budget-'+catKey);
+  const surpriseEl = document.getElementById('surprise-'+catKey);
+  const errEl = document.getElementById('err-'+catKey);
+  const name = nameEl.value.trim();
+  if(!name){
+    errEl.style.display = 'inline';
+    nameEl.focus();
+    return;
+  }
+  errEl.style.display = 'none';
+  const budget = Number(budgetEl.value) || 0;
+  const surprise = Number(surpriseEl.value) || 5;
+  const cat = data.categories.find(c=>c.key===catKey);
+  const newId = data.nextId++;
+  cat.options.push({id:newId, name, budget, surprise});
+  data.selected[catKey] = newId;
+  renderAll();
+  scheduleSave();
+}
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(confirm('確定要還原成預設藝人清單嗎？目前的調整將會被覆蓋。')){
+    data = JSON.parse(JSON.stringify(defaultData));
+    renderAll();
+    scheduleSave();
+  }
+});
+
+loadData();
+</script>
+</body>
+</html>
