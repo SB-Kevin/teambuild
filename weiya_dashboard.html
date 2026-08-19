@@ -8,7 +8,7 @@
   :root{
     --bg:#f6f5f1; --card:#ffffff; --border:#e2e0d8; --border-strong:#c9c6ba;
     --text:#242320; --text-2:#6b6a63; --text-muted:#98968c;
-    --accent:#2a78d6; --danger:#c1392b;
+    --accent:#2a78d6; --danger:#c1392b; --ok:#1baf7a; --warn:#eda100;
     --c-open:#2a78d6; --c-host:#eb6834; --c-mid:#1baf7a; --c-final:#eda100;
     --radius:8px;
   }
@@ -21,13 +21,25 @@
   .wrap{max-width:920px;margin:0 auto;}
   h1{font-size:20px;font-weight:600;margin:0 0 4px;}
   .sub{font-size:13px;color:var(--text-2);margin:0 0 20px;}
-  .status{font-size:12px;color:var(--text-muted);margin:0 0 20px;min-height:16px;}
-  .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+  .status{font-size:12px;color:var(--text-muted);margin:0 0 16px;min-height:16px;}
+  .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;}
   .metric{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px;}
   .metric p{margin:0;}
   .metric .l{font-size:12px;color:var(--text-2);margin-bottom:4px;}
   .metric .v{font-size:22px;font-weight:600;}
-  .section-title{font-size:14px;font-weight:600;color:var(--text-2);margin:24px 0 10px;text-transform:none;}
+  .budgetbox{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:14px;}
+  .budgethead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+  .budgethead .l{font-size:13px;color:var(--text-2);}
+  .budgethead .capinput{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-2);}
+  .budgethead .capinput input{width:70px;}
+  .budgetpct{font-size:13px;font-weight:600;}
+  .track{height:10px;border-radius:6px;background:#ece9df;overflow:hidden;}
+  .fill{height:100%;border-radius:6px;transition:width .2s ease;}
+  .coverage{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
+  .covchip{font-size:12px;padding:4px 10px;border-radius:999px;border:0.5px solid var(--border);color:var(--text-2);}
+  .covchip.ok{background:#e1f5ee;border-color:#9fe1cb;color:#085041;}
+  .covchip.miss{background:#faecea;border-color:#f0997b;color:#712b13;}
+  .section-title{font-size:14px;font-weight:600;color:var(--text-2);margin:24px 0 10px;}
   .overview{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:8px;}
   @media (max-width:640px){.overview{grid-template-columns:1fr;}}
   .ovcard{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px;}
@@ -35,16 +47,16 @@
   .cat{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:14px;}
   .cat h2{font-size:15px;font-weight:600;margin:0 0 10px;display:flex;align-items:center;gap:8px;}
   .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
-  .row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--border);flex-wrap:wrap;}
+  .row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--border);flex-wrap:wrap;}
   .row:last-of-type{border-bottom:none;}
-  .row .name{flex:1;min-width:80px;font-size:14px;}
+  .row .name{flex:1;min-width:70px;font-size:14px;}
   .row .lbl{font-size:11px;color:var(--text-muted);white-space:nowrap;}
   input[type=text],input[type=number]{
     border:0.5px solid var(--border-strong); border-radius:6px; padding:5px 8px;
     font-size:13px; background:#fff; color:var(--text);
   }
-  input[type=number]{width:64px;}
-  input[type=range]{width:80px;}
+  input[type=number]{width:60px;}
+  input[type=range]{width:70px;}
   button{
     border:0.5px solid var(--border-strong); background:#fff; border-radius:6px;
     padding:6px 10px; font-size:13px; cursor:pointer; color:var(--text);
@@ -53,6 +65,14 @@
   button:active{transform:scale(0.98);}
   .icon-btn{width:28px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--danger);border-color:var(--border);}
   .surprise-out{font-size:13px;font-weight:600;min-width:16px;text-align:center;}
+  .agechips{display:flex;gap:4px;}
+  .agechip{
+    font-size:11px;padding:3px 7px;border-radius:999px;border:0.5px solid var(--border-strong);
+    background:#fff;color:var(--text-muted);cursor:pointer;user-select:none;
+  }
+  .agechip.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .cp{font-size:12px;color:var(--text-2);white-space:nowrap;padding:3px 7px;border-radius:6px;background:var(--bg);}
+  .cp.best{color:#712b13;background:#faeeda;font-weight:600;}
   .addrow{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
   .addrow input[type=text]{flex:1;min-width:100px;}
   .err{color:var(--danger);font-size:12px;margin-left:4px;display:none;}
@@ -70,10 +90,23 @@
 <body>
 <div class="wrap">
   <h1>91APP 2026 尾牙藝人比較儀表板</h1>
-  <p class="sub">開場表演 / 主持人 / 中場表演 / 壓軸，四段落各自比較預算與驚訝程度，資料會自動儲存。</p>
+  <p class="sub">開場表演 / 主持人 / 中場表演 / 壓軸，四段落各自比較預算與驚訝程度，資料會自動同步。</p>
   <p class="status" id="status"></p>
 
   <div class="summary" id="summary"></div>
+
+  <div class="budgetbox">
+    <div class="budgethead">
+      <span class="l">預算上限使用狀況</span>
+      <span class="capinput">總預算上限
+        <input type="number" id="capInput" min="0" step="1" value="150">
+        萬
+      </span>
+      <span class="budgetpct" id="budgetPct">0%</span>
+    </div>
+    <div class="track"><div class="fill" id="budgetFill" style="width:0%;background:var(--accent);"></div></div>
+    <div class="coverage" id="coverage"></div>
+  </div>
 
   <p class="section-title">整體總覽 — 目前選擇的組合</p>
   <div class="overview">
@@ -97,7 +130,7 @@
 
   <p class="section-title">所有候選藝人比較</p>
   <div class="chartbox">
-    <p>預算（萬元）vs 驚訝程度（1-10），實心圈為目前已選擇</p>
+    <p>預算（萬元）vs 驚訝程度（1-10），實心圈為目前已選擇，CP值 = 驚訝程度 ÷ 預算 ×10（數字愈高愈划算）</p>
     <div class="legend" id="legend"></div>
     <div style="position:relative;height:280px;">
       <canvas id="chart" role="img" aria-label="散佈圖：X軸為預算萬元，Y軸為驚訝程度1到10分，四種顏色分別代表開場、主持、中場、壓軸">散佈圖顯示各候選藝人的預算與驚訝程度分布。</canvas>
@@ -113,23 +146,26 @@
 <script>
 const STORAGE_KEY = 'weiya-2026-dashboard';
 const seriesColors = {open:'#2a78d6', host:'#eb6834', mid:'#1baf7a', final:'#eda100'};
+const AGE_KEYS = ['old','mid','young'];
+const AGE_LABELS = {old:'老', mid:'中', young:'青'};
 
 const defaultData = {
+  budgetCap: 150,
   categories: [
     {key:'open', label:'開場表演', options:[
-      {id:1,name:'芒果醬',budget:20,surprise:7}
+      {id:1,name:'芒果醬',budget:20,surprise:7,ages:['mid','young']}
     ]},
     {key:'host', label:'主持人', options:[
-      {id:2,name:'邰智源',budget:40,surprise:9},
-      {id:3,name:'阿Ken',budget:40,surprise:8},
-      {id:4,name:'瑪利歐',budget:10,surprise:6},
-      {id:5,name:'梅賢智',budget:8,surprise:5}
+      {id:2,name:'邰智源',budget:40,surprise:9,ages:['old','mid','young']},
+      {id:3,name:'阿Ken',budget:40,surprise:8,ages:['mid','young']},
+      {id:4,name:'瑪利歐',budget:10,surprise:6,ages:['old','mid']},
+      {id:5,name:'梅賢智',budget:8,surprise:5,ages:['old','mid']}
     ]},
     {key:'mid', label:'中場表演', options:[
-      {id:6,name:'李聖傑',budget:20,surprise:5}
+      {id:6,name:'李聖傑',budget:20,surprise:5,ages:['old','mid']}
     ]},
     {key:'final', label:'壓軸', options:[
-      {id:7,name:'怕胖團',budget:40,surprise:8}
+      {id:7,name:'怕胖團',budget:40,surprise:8,ages:['mid','young']}
     ]}
   ],
   selected: {open:1, host:2, mid:6, final:7},
@@ -169,6 +205,7 @@ function initSharedMode(){
     const val = snapshot.val();
     if(val && val.categories && val.selected){
       data = val;
+      if(typeof data.budgetCap !== 'number') data.budgetCap = defaultData.budgetCap;
       renderAll();
       setStatus('已連線，所有人看到同一份即時資料');
     }else{
@@ -184,7 +221,10 @@ function initLocalMode(){
     const raw = localStorage.getItem(STORAGE_KEY);
     if(raw){
       const parsed = JSON.parse(raw);
-      if(parsed && parsed.categories && parsed.selected){ data = parsed; }
+      if(parsed && parsed.categories && parsed.selected){
+        data = parsed;
+        if(typeof data.budgetCap !== 'number') data.budgetCap = defaultData.budgetCap;
+      }
     }
   }catch(e){}
   setStatus('尚未設定共享資料庫，目前僅存在你自己的瀏覽器，其他人看不到這裡的修改（見程式碼開頭的 Firebase 設定說明）', true);
@@ -218,21 +258,50 @@ function metricCard(label, value){
   return '<div class="metric"><p class="l">'+label+'</p><p class="v">'+value+'</p></div>';
 }
 
+function cpValue(o){
+  if(!o.budget || o.budget<=0) return null;
+  return Math.round((o.surprise / o.budget) * 10 * 10) / 10;
+}
+
+function bestCpId(cat){
+  let best = null, bestVal = -1;
+  cat.options.forEach(o=>{
+    const v = cpValue(o);
+    if(v !== null && v > bestVal){ bestVal = v; best = o.id; }
+  });
+  return cat.options.length > 1 ? best : null;
+}
+
+function agechips(catKey, o){
+  return '<div class="agechips">' + AGE_KEYS.map(k=>{
+    const on = o.ages && o.ages.indexOf(k) !== -1;
+    return '<span class="agechip'+(on?' on':'')+'" role="button" tabindex="0" aria-pressed="'+on+'" '+
+      'onclick="toggleAge(\''+catKey+'\','+o.id+',\''+k+'\')" '+
+      'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();toggleAge(\''+catKey+'\','+o.id+',\''+k+'\');}">'+AGE_LABELS[k]+'</span>';
+  }).join('') + '</div>';
+}
+
 function catCard(cat){
+  const bestId = bestCpId(cat);
   const rows = cat.options.map(o=>{
     const checked = data.selected[cat.key]===o.id ? 'checked' : '';
     const delBtn = cat.options.length>1
       ? '<button class="icon-btn" aria-label="移除'+o.name+'" onclick="removeOpt(\''+cat.key+'\','+o.id+')">✕</button>'
       : '<span style="width:28px;display:inline-block;"></span>';
+    const cp = cpValue(o);
+    const cpLabel = cp === null ? 'CP -' : 'CP '+cp;
+    const isBest = bestId === o.id;
     return '<div class="row">' +
       '<input type="radio" name="sel-'+cat.key+'" '+checked+' onchange="selectOpt(\''+cat.key+'\','+o.id+')" style="width:16px;height:16px;">' +
       '<span class="name">'+escapeHtml(o.name)+'</span>' +
+      agechips(cat.key, o) +
       '<span class="lbl">預算</span>' +
       '<input type="number" value="'+o.budget+'" min="0" step="1" onchange="editField(\''+cat.key+'\','+o.id+',\'budget\',this.value)">' +
       '<span class="lbl">萬</span>' +
       '<span class="lbl">驚訝</span>' +
       '<input type="range" min="1" max="10" step="1" value="'+o.surprise+'" oninput="this.nextElementSibling.textContent=this.value" onchange="editField(\''+cat.key+'\','+o.id+',\'surprise\',this.value)">' +
       '<span class="surprise-out">'+o.surprise+'</span>' +
+      '<span class="cp'+(isBest?' best':'')+'" title="驚訝程度除以預算，數字愈高愈划算">'+cpLabel+(isBest?' ★':'')+'</span>' +
       delBtn +
       '</div>';
   }).join('');
@@ -245,6 +314,8 @@ function catCard(cat){
       '<span class="lbl">驚訝</span>' +
       '<input type="range" min="1" max="10" step="1" value="5" id="surprise-'+cat.key+'" oninput="document.getElementById(\'surprise-out-'+cat.key+'\').textContent=this.value">' +
       '<span class="surprise-out" id="surprise-out-'+cat.key+'">5</span>' +
+      '<span class="lbl">受眾</span>' +
+      AGE_KEYS.map(k=>'<label class="lbl" style="display:flex;align-items:center;gap:2px;"><input type="checkbox" id="age-'+k+'-'+cat.key+'" style="width:14px;height:14px;">'+AGE_LABELS[k]+'</label>').join('') +
       '<button onclick="addOpt(\''+cat.key+'\')">+ 新增藝人</button>' +
       '<span class="err" id="err-'+cat.key+'">請輸入姓名</span>' +
     '</div>' +
@@ -273,6 +344,25 @@ function renderAll(){
     metricCard('目前組合總預算', totalBudget.toLocaleString()+' 萬') +
     metricCard('平均驚訝程度', avgSurprise+' / 10') +
     metricCard('候選藝人總數', data.categories.reduce((s,c)=>s+c.options.length,0)+' 位');
+
+  const capInput = document.getElementById('capInput');
+  if(document.activeElement !== capInput){ capInput.value = data.budgetCap; }
+  const cap = data.budgetCap || 0;
+  const pct = cap > 0 ? Math.round((totalBudget/cap)*100) : 0;
+  const fillEl = document.getElementById('budgetFill');
+  const pctEl = document.getElementById('budgetPct');
+  fillEl.style.width = Math.min(pct,100)+'%';
+  fillEl.style.background = pct > 100 ? 'var(--danger)' : (pct > 85 ? 'var(--warn)' : 'var(--accent)');
+  pctEl.textContent = pct+'%'+(pct>100? '（超支 '+(totalBudget-cap)+' 萬）':'');
+  pctEl.style.color = pct > 100 ? 'var(--danger)' : 'var(--text)';
+
+  const coveredAges = new Set();
+  sel.forEach(x=>{ (x.opt.ages||[]).forEach(a=>coveredAges.add(a)); });
+  document.getElementById('coverage').innerHTML = AGE_KEYS.map(k=>{
+    const ok = coveredAges.has(k);
+    return '<span class="covchip '+(ok?'ok':'miss')+'">'+AGE_LABELS[k]+'（'+(ok?'已覆蓋':'未覆蓋')+'）</span>';
+  }).join('');
+
   document.getElementById('legend').innerHTML = data.categories.map(c=>
     '<span><span class="dot" style="background:'+seriesColors[c.key]+'"></span>'+c.label+'</span>'
   ).join('');
@@ -393,6 +483,16 @@ function editField(catKey,id,field,value){
   scheduleSave();
 }
 
+function toggleAge(catKey,id,ageKey){
+  const cat = data.categories.find(c=>c.key===catKey);
+  const o = cat.options.find(x=>x.id===id);
+  if(!o.ages) o.ages = [];
+  const idx = o.ages.indexOf(ageKey);
+  if(idx === -1){ o.ages.push(ageKey); } else { o.ages.splice(idx,1); }
+  renderAll();
+  scheduleSave();
+}
+
 function removeOpt(catKey,id){
   const cat = data.categories.find(c=>c.key===catKey);
   cat.options = cat.options.filter(x=>x.id!==id);
@@ -415,13 +515,20 @@ function addOpt(catKey){
   errEl.style.display = 'none';
   const budget = Number(budgetEl.value) || 0;
   const surprise = Number(surpriseEl.value) || 5;
+  const ages = AGE_KEYS.filter(k=> document.getElementById('age-'+k+'-'+catKey).checked);
   const cat = data.categories.find(c=>c.key===catKey);
   const newId = data.nextId++;
-  cat.options.push({id:newId, name, budget, surprise});
+  cat.options.push({id:newId, name, budget, surprise, ages});
   data.selected[catKey] = newId;
   renderAll();
   scheduleSave();
 }
+
+document.getElementById('capInput').addEventListener('change', (e)=>{
+  data.budgetCap = Number(e.target.value) || 0;
+  renderAll();
+  scheduleSave();
+});
 
 document.getElementById('resetBtn').addEventListener('click', ()=>{
   if(confirm('確定要還原成預設藝人清單嗎？目前的調整將會被覆蓋。')){
