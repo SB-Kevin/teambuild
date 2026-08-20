@@ -48,6 +48,40 @@
 
   .cardbox{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:14px;}
 
+  .plantabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  .plantab{
+    display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);
+    border-radius:10px;padding:8px 12px;cursor:pointer;
+  }
+  .plantab.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;}
+  .plantab input[type=text]{border:none;background:transparent;font-size:14px;font-weight:600;width:90px;padding:2px 4px;}
+  .plantab .badge{font-size:11px;color:#fff;background:var(--accent);border-radius:999px;padding:2px 8px;}
+
+  .cmp-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .cmp-table th,.cmp-table td{padding:8px 10px;text-align:left;border-bottom:0.5px solid var(--border);}
+  .cmp-table th{color:var(--text-2);font-weight:600;font-size:12px;}
+  .cmp-table tr.active td{background:#eef4fc;}
+  .cmp-charts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;}
+  @media (max-width:640px){.cmp-charts{grid-template-columns:1fr;}}
+
+  .planscompare{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;}
+  @media (max-width:860px){.planscompare{grid-template-columns:1fr;}}
+  .plancard{border:1px solid var(--border);border-radius:12px;padding:14px;background:var(--bg);}
+  .plancard.active{border-color:var(--accent);background:#f2f7fd;}
+  .plancard-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
+  .plancard-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px;}
+  .planbadges{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;min-height:20px;}
+  .planbadge{background:#fff;border:1px solid var(--border-strong);color:var(--text-2);border-radius:999px;
+    padding:3px 9px;font-size:11px;font-weight:600;white-space:nowrap;}
+  .mini-rundown{display:flex;align-items:center;gap:2px;margin-bottom:10px;flex-wrap:wrap;}
+  .mini-card{flex:1;min-width:56px;text-align:center;}
+  .mini-avatar{width:34px;height:34px;border-radius:50%;margin:0 auto 4px;display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:600;color:#fff;object-fit:cover;background-size:cover;background-position:center;}
+  .mini-name{font-size:11px;line-height:1.2;}
+  .mini-arrow{font-size:12px;color:var(--text-muted);padding:0 1px;}
+  .plancard-stats{font-size:12px;color:var(--text-2);display:flex;flex-direction:column;gap:4px;}
+  .plancard-stats b{color:var(--text);}
+
   .avatar{width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
     font-size:13px;font-weight:600;color:#fff;object-fit:cover;background-size:cover;background-position:center;}
   .arow{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border);flex-wrap:wrap;}
@@ -123,14 +157,17 @@
 <body>
 <div class="wrap">
   <h1>91APP 2026 尾牙藝人比較儀表板</h1>
-  <p class="sub">開場表演 / 主持人 / 中場表演 / 壓軸，可統一管理藝人資料庫，一位藝人也能同時支援多個段落。</p>
+  <p class="sub">開場表演 / 主持人 / 中場表演 / 壓軸，可建立多個方案分別搭配藝人，最後比較每個方案的預算、CP值與驚訝程度。</p>
   <p class="status" id="status"></p>
+
+  <p class="section-title" style="margin-top:0;">方案切換（目前編輯中的方案）</p>
+  <div class="plantabs" id="plantabs"></div>
 
   <div class="summary" id="summary"></div>
 
   <div class="budgetbox">
     <div class="budgethead">
-      <span class="l">預算上限使用狀況</span>
+      <span class="l">預算上限使用狀況（目前方案）</span>
       <span class="capinput">總預算上限
         <input type="number" id="capInput" min="0" step="1" value="150">
         萬
@@ -142,12 +179,12 @@
     <p class="unset" id="unsetNote" style="margin:8px 0 0;"></p>
   </div>
 
-  <p class="section-title">尾牙 Rundown</p>
+  <p class="section-title">尾牙 Rundown（目前方案）</p>
   <div class="cardbox">
     <div class="rundown" id="rundown"></div>
   </div>
 
-  <p class="section-title">整體總覽 — 目前選擇的組合</p>
+  <p class="section-title">整體總覽（目前方案）</p>
   <div class="overview">
     <div class="ovcard">
       <p class="cap">預算分配（依段落占比，未定價暫不計入）</p>
@@ -164,23 +201,39 @@
     </div>
   </div>
 
+  <p class="section-title">三個方案總覽比較</p>
+  <div class="cardbox">
+    <div class="planscompare" id="planscompare"></div>
+    <table class="cmp-table" id="cmpTable"></table>
+    <div class="cmp-charts">
+      <div>
+        <p class="cap" style="font-size:13px;color:var(--text-2);margin:0 0 8px;">各方案總預算（萬元）</p>
+        <div style="position:relative;height:200px;"><canvas id="planBudgetChart" role="img" aria-label="長條圖：比較三個方案的總預算"></canvas></div>
+      </div>
+      <div>
+        <p class="cap" style="font-size:13px;color:var(--text-2);margin:0 0 8px;">各方案平均驚訝程度</p>
+        <div style="position:relative;height:200px;"><canvas id="planSurpriseChart" role="img" aria-label="長條圖：比較三個方案的平均驚訝程度"></canvas></div>
+      </div>
+    </div>
+  </div>
+
   <p class="section-title">藝人資料庫</p>
-  <p class="note">因肖像權與版權限制，無法自動抓取藝人本人的網路照片。你可以在下面「照片網址」欄位貼上你有權使用的圖片連結（例如經紀公司提供的官方圖），沒有貼的話會顯示姓名縮寫的預設頭像。一位藝人可以同時勾選多個段落（例如可主持也可開場）。</p>
+  <p class="note">因肖像權與版權限制，無法自動抓取藝人本人的網路照片。你可以在下面「照片網址」欄位貼上你有權使用的圖片連結，沒有貼的話會顯示姓名縮寫的預設頭像。一位藝人可以同時勾選多個段落（例如可主持也可開場），也會同時出現在三個方案可選清單中。</p>
   <div class="cardbox" id="roster"></div>
 
-  <p class="section-title">指派各段落人選</p>
+  <p class="section-title">指派各段落人選（套用到目前方案）</p>
   <div id="assign"></div>
 
   <p class="section-title">所有候選藝人比較</p>
   <div class="chartbox">
-    <p>預算（萬元）vs 驚訝程度（1-10），實心圈為目前已選擇，CP值 = 驚訝程度 ÷ 預算 ×10（未定價者不列入）</p>
+    <p>預算（萬元）vs 驚訝程度（1-10），實心圈為目前方案已選擇，CP值 = 驚訝程度 ÷ 預算 ×10（未定價者不列入）</p>
     <div class="legend" id="legend"></div>
     <div style="position:relative;height:280px;">
       <canvas id="chart" role="img" aria-label="散佈圖：X軸為預算萬元，Y軸為驚訝程度1到10分">散佈圖顯示各候選藝人的預算與驚訝程度分布。</canvas>
     </div>
   </div>
 
-  <button class="reset" id="resetBtn">還原成預設藝人清單</button>
+  <button class="reset" id="resetBtn">還原成預設藝人清單與方案</button>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -198,6 +251,7 @@ const CATS = [
 const AGE_KEYS = ['old','mid','young'];
 const AGE_LABELS = {old:'老', mid:'中', young:'青'};
 const AVATAR_PALETTE = ['#2a78d6','#eb6834','#1baf7a','#eda100','#8f5fd6','#d64f7c'];
+const PLAN_COLORS = ['#2a78d6','#eb6834','#1baf7a'];
 
 const defaultData = {
   budgetCap: 150,
@@ -214,12 +268,17 @@ const defaultData = {
     {id:10, name:'布萊克薛薛', budget:null, surprise:5, ages:[], categories:['host'], imageUrl:''},
     {id:11, name:'Alin', budget:null, surprise:5, ages:[], categories:['host','open'], imageUrl:''}
   ],
-  selected: {open:1, host:2, mid:6, final:7},
+  plans: [
+    {id:'p1', name:'方案一', selected:{open:1, host:2, mid:6, final:7}},
+    {id:'p2', name:'方案二', selected:{open:1, host:3, mid:6, final:7}},
+    {id:'p3', name:'方案三', selected:{open:11, host:11, mid:6, final:7}}
+  ],
+  activePlan: 'p1',
   nextId: 100
 };
 
 let data = JSON.parse(JSON.stringify(defaultData));
-let chart, donutChart, radarChart;
+let chart, donutChart, radarChart, planBudgetChart, planSurpriseChart;
 let saveTimer = null;
 
 function setStatus(msg, isErr){
@@ -242,22 +301,30 @@ const isFirebaseConfigured = firebaseConfig && typeof firebaseConfig === 'object
 
 let dataRef = null;
 
+function findArtist(id){ return data.artists.find(a=>a.id===id); }
+function artistsForCategory(key){ return data.artists.filter(a=> a.categories.indexOf(key) !== -1); }
+function getActivePlan(){ return data.plans.find(p=>p.id===data.activePlan) || data.plans[0]; }
+
 function normalizeData(){
   if(typeof data.budgetCap !== 'number') data.budgetCap = defaultData.budgetCap;
   if(!Array.isArray(data.artists)) data.artists = [];
-  if(!data.selected) data.selected = {};
+  if(!Array.isArray(data.plans) || data.plans.length===0) data.plans = JSON.parse(JSON.stringify(defaultData.plans));
+  if(!data.activePlan || !data.plans.find(p=>p.id===data.activePlan)) data.activePlan = data.plans[0].id;
   data.artists.forEach(a=>{
     if(!Array.isArray(a.ages)) a.ages = [];
     if(!Array.isArray(a.categories)) a.categories = [];
     if(typeof a.imageUrl !== 'string') a.imageUrl = '';
     if(typeof a.budget !== 'number') a.budget = null;
   });
-  CATS.forEach(cat=>{
-    const list = artistsForCategory(cat.key);
-    const cur = data.selected[cat.key];
-    if(!list.find(a=>a.id===cur)){
-      data.selected[cat.key] = list.length ? list[0].id : null;
-    }
+  data.plans.forEach(plan=>{
+    if(!plan.selected) plan.selected = {};
+    CATS.forEach(cat=>{
+      const list = artistsForCategory(cat.key);
+      const cur = plan.selected[cat.key];
+      if(!list.find(a=>a.id===cur)){
+        plan.selected[cat.key] = list.length ? list[0].id : null;
+      }
+    });
   });
 }
 
@@ -268,7 +335,7 @@ function initSharedMode(){
   setStatus('連線中...');
   dataRef.on('value', (snapshot)=>{
     const val = snapshot.val();
-    if(val && val.artists && val.selected){
+    if(val && val.artists && val.plans){
       data = val;
       normalizeData();
       renderAll();
@@ -286,7 +353,7 @@ function initLocalMode(){
     const raw = localStorage.getItem(STORAGE_KEY);
     if(raw){
       const parsed = JSON.parse(raw);
-      if(parsed && parsed.artists && parsed.selected){ data = parsed; }
+      if(parsed && parsed.artists && parsed.plans){ data = parsed; }
     }
   }catch(e){}
   normalizeData();
@@ -323,9 +390,6 @@ function escapeHtml(s){
   return d.innerHTML;
 }
 
-function findArtist(id){ return data.artists.find(a=>a.id===id); }
-function artistsForCategory(key){ return data.artists.filter(a=> a.categories.indexOf(key) !== -1); }
-
 function avatarColor(name){
   let h = 0;
   for(let i=0;i<name.length;i++){ h = (h*31 + name.charCodeAt(i)) % AVATAR_PALETTE.length; }
@@ -350,8 +414,20 @@ function metricCard(label, value){
   return '<div class="metric"><p class="l">'+label+'</p><p class="v">'+value+'</p></div>';
 }
 
-function currentSelection(){
-  return CATS.map(cat=>({ cat, opt: findArtist(data.selected[cat.key]) })).filter(x=>x.opt);
+function selectionOf(plan){
+  return CATS.map(cat=>({ cat, opt: findArtist(plan.selected[cat.key]) })).filter(x=>x.opt);
+}
+
+function currentSelection(){ return selectionOf(getActivePlan()); }
+
+function planStats(plan){
+  const sel = selectionOf(plan);
+  const priced = sel.filter(x=>x.opt.budget!==null);
+  const totalBudget = priced.reduce((s,x)=>s+x.opt.budget,0);
+  const avgSurprise = sel.length ? sel.reduce((s,x)=>s+x.opt.surprise,0)/sel.length : 0;
+  const cps = priced.map(x=>cpValue(x.opt)).filter(v=>v!==null);
+  const avgCp = cps.length ? cps.reduce((a,b)=>a+b,0)/cps.length : null;
+  return { totalBudget, avgSurprise, avgCp, unpriced: sel.length-priced.length, count: sel.length };
 }
 
 function catChips(a){
@@ -448,12 +524,13 @@ function renderRoster(){
 }
 
 function renderAssign(){
+  const activePlan = getActivePlan();
   const html = CATS.map(cat=>{
     const list = artistsForCategory(cat.key);
     let bestId = null, bestVal = -1;
     list.forEach(a=>{ const v = cpValue(a); if(v!==null && v>bestVal){ bestVal=v; bestId=a.id; } });
     const rows = list.length ? list.map(a=>{
-      const checked = data.selected[cat.key]===a.id ? 'checked' : '';
+      const checked = activePlan.selected[cat.key]===a.id ? 'checked' : '';
       const cp = cpValue(a);
       const budgetLabel = a.budget===null ? '未定金額' : a.budget+' 萬';
       return '<div class="assign-row">' +
@@ -471,6 +548,127 @@ function renderAssign(){
       '</h2>' + rows + '</div>';
   }).join('');
   document.getElementById('assign').innerHTML = html;
+}
+
+function renderPlanTabs(){
+  document.getElementById('plantabs').innerHTML = data.plans.map((plan,idx)=>{
+    const active = plan.id === data.activePlan;
+    return '<div class="plantab'+(active?' active':'')+'" style="border-color:'+PLAN_COLORS[idx%3]+(active?'':'')+';">' +
+      '<span class="badge" style="background:'+PLAN_COLORS[idx%3]+';">'+(idx+1)+'</span>' +
+      '<input type="text" value="'+escapeHtml(plan.name)+'" onclick="event.stopPropagation();" onchange="renamePlan(\''+plan.id+'\',this.value)">' +
+      (active ? '' : '<button onclick="switchPlan(\''+plan.id+'\')">切換</button>') +
+      '</div>';
+  }).join('');
+}
+
+function ageCoverageCount(plan){
+  const covered = new Set();
+  selectionOf(plan).forEach(x=>{ (x.opt.ages||[]).forEach(a=>covered.add(a)); });
+  return covered.size;
+}
+
+function computePlanBadges(){
+  const stats = data.plans.map(p=>({ plan:p, s: planStats(p), coverage: ageCoverageCount(p) }));
+  const minBudget = Math.min(...stats.map(x=> x.s.totalBudget));
+  const maxSurprise = Math.max(...stats.map(x=> x.s.avgSurprise));
+  const cpVals = stats.map(x=>x.s.avgCp).filter(v=>v!==null);
+  const maxCp = cpVals.length ? Math.max(...cpVals) : null;
+  const maxCoverage = Math.max(...stats.map(x=>x.coverage));
+  const map = {};
+  stats.forEach(x=>{
+    const badges = [];
+    if(x.s.totalBudget === minBudget) badges.push('💰 最省錢');
+    if(x.s.avgSurprise === maxSurprise) badges.push('✨ 最驚喜');
+    if(x.s.avgCp !== null && x.s.avgCp === maxCp) badges.push('🎯 CP值最高');
+    if(maxCoverage === 3 && x.coverage === 3) badges.push('🌏 老中青全覆蓋');
+    map[x.plan.id] = badges;
+  });
+  return map;
+}
+
+function renderPlanMiniCards(){
+  const badgeMap = computePlanBadges();
+  const html = data.plans.map((plan, idx)=>{
+    const active = plan.id === data.activePlan;
+    const sel = selectionOf(plan);
+    const s = planStats(plan);
+    const badges = badgeMap[plan.id] || [];
+    const mini = CATS.map((cat, ci)=>{
+      const found = sel.find(x=>x.cat.key===cat.key);
+      const inner = found
+        ? avatarHtml(found.opt, 34).replace('avatar','mini-avatar') + '<div class="mini-name">'+escapeHtml(found.opt.name)+'</div>'
+        : '<div class="mini-avatar" style="background:#d8d5ca;">?</div><div class="mini-name" style="color:var(--text-muted);">未選</div>';
+      let h = '<div class="mini-card">'+inner+'</div>';
+      if(ci < CATS.length-1){ h += '<div class="mini-arrow">›</div>'; }
+      return h;
+    }).join('');
+    return '<div class="plancard'+(active?' active':'')+'">' +
+      '<div class="plancard-head">' +
+        '<span class="plancard-title"><span class="dot" style="background:'+PLAN_COLORS[idx%3]+'"></span>'+escapeHtml(plan.name)+'</span>' +
+        (active ? '<span class="lbl" style="font-size:11px;color:var(--accent);">編輯中</span>' : '<button onclick="switchPlan(\''+plan.id+'\')">切換編輯</button>') +
+      '</div>' +
+      '<div class="planbadges">' + (badges.length ? badges.map(b=>'<span class="planbadge">'+b+'</span>').join('') : '<span class="planbadge" style="opacity:.5;">—</span>') + '</div>' +
+      '<div class="mini-rundown">' + mini + '</div>' +
+      '<div class="plancard-stats">' +
+        '<span>總預算：<b>'+s.totalBudget.toLocaleString()+' 萬</b>'+(s.unpriced>0?'（'+s.unpriced+'位未定價）':'')+'</span>' +
+        '<span>平均CP值：<b>'+(s.avgCp===null?'-':s.avgCp.toFixed(1))+'</b></span>' +
+        '<span>平均驚訝程度：<b>'+s.avgSurprise.toFixed(1)+' / 10</b></span>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  document.getElementById('planscompare').innerHTML = html;
+}
+
+function renderPlanComparison(){
+  renderPlanMiniCards();
+  const badgeMap = computePlanBadges();
+  const rows = data.plans.map((plan,idx)=>{
+    const s = planStats(plan);
+    const active = plan.id === data.activePlan;
+    const badges = (badgeMap[plan.id]||[]).join(' ') || '—';
+    return '<tr'+(active?' class="active"':'')+'>' +
+      '<td><span class="dot" style="background:'+PLAN_COLORS[idx%3]+'"></span> '+escapeHtml(plan.name)+(active?'（編輯中）':'')+'</td>' +
+      '<td>'+s.totalBudget.toLocaleString()+' 萬'+(s.unpriced>0?'（'+s.unpriced+'位未定價）':'')+'</td>' +
+      '<td>'+(s.avgCp===null?'-':s.avgCp.toFixed(1))+'</td>' +
+      '<td>'+s.avgSurprise.toFixed(1)+' / 10</td>' +
+      '<td style="font-size:12px;">'+badges+'</td>' +
+      '<td>'+(active?'':'<button onclick="switchPlan(\''+plan.id+'\')">切換編輯</button>')+'</td>' +
+      '</tr>';
+  }).join('');
+  document.getElementById('cmpTable').innerHTML =
+    '<tr><th>方案</th><th>總預算（已定價）</th><th>平均CP值</th><th>平均驚訝程度</th><th>亮點</th><th></th></tr>' + rows;
+
+  const labels = data.plans.map(p=>p.name);
+  const budgets = data.plans.map(p=>planStats(p).totalBudget);
+  const surprises = data.plans.map(p=>Number(planStats(p).avgSurprise.toFixed(1)));
+
+  if(planBudgetChart){
+    planBudgetChart.data.labels = labels;
+    planBudgetChart.data.datasets[0].data = budgets;
+    planBudgetChart.update();
+  }else{
+    planBudgetChart = new Chart(document.getElementById('planBudgetChart'), {
+      type:'bar',
+      data:{ labels, datasets:[{ data:budgets, backgroundColor: PLAN_COLORS, borderRadius:6 }] },
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx=> ctx.raw+' 萬' } } },
+        scales:{ y:{ beginAtZero:true, title:{display:true, text:'萬元'} } } }
+    });
+  }
+
+  if(planSurpriseChart){
+    planSurpriseChart.data.labels = labels;
+    planSurpriseChart.data.datasets[0].data = surprises;
+    planSurpriseChart.update();
+  }else{
+    planSurpriseChart = new Chart(document.getElementById('planSurpriseChart'), {
+      type:'bar',
+      data:{ labels, datasets:[{ data:surprises, backgroundColor: PLAN_COLORS, borderRadius:6 }] },
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx=> ctx.raw+' / 10' } } },
+        scales:{ y:{ beginAtZero:true, max:10, title:{display:true, text:'平均驚訝程度'} } } }
+    });
+  }
 }
 
 function renderRundown(){
@@ -495,9 +693,11 @@ function renderRundown(){
 
 function renderAll(){
   normalizeData();
+  renderPlanTabs();
   renderRoster();
   renderAssign();
   renderRundown();
+  renderPlanComparison();
 
   const sel = currentSelection();
   const priced = sel.filter(x=>x.opt.budget!==null);
@@ -505,13 +705,13 @@ function renderAll(){
   const totalSurprise = sel.reduce((s,x)=>s+x.opt.surprise,0);
   const avgSurprise = sel.length ? (totalSurprise/sel.length).toFixed(1) : '0.0';
   document.getElementById('summary').innerHTML =
-    metricCard('目前組合總預算（已定價部分）', totalBudget.toLocaleString()+' 萬') +
-    metricCard('平均驚訝程度', avgSurprise+' / 10') +
+    metricCard('目前方案總預算（已定價部分）', totalBudget.toLocaleString()+' 萬') +
+    metricCard('目前方案平均驚訝程度', avgSurprise+' / 10') +
     metricCard('候選藝人總數', data.artists.length+' 位');
 
   const unpriced = sel.length - priced.length;
   document.getElementById('unsetNote').textContent = unpriced > 0
-    ? '目前選擇中有 '+unpriced+' 位藝人費用尚未確定，未計入總預算與圖表。'
+    ? '目前方案中有 '+unpriced+' 位藝人費用尚未確定，未計入總預算與圖表。'
     : '';
 
   const capInput = document.getElementById('capInput');
@@ -543,11 +743,12 @@ function renderAll(){
 }
 
 function renderChart(){
+  const activePlan = getActivePlan();
   const datasets = CATS.map(cat=>{
     const list = artistsForCategory(cat.key).filter(a=>a.budget!==null);
     return {
       label: cat.label,
-      data: list.map(a=>({x:a.budget, y:a.surprise, id:a.id, name:a.name, sel: data.selected[cat.key]===a.id})),
+      data: list.map(a=>({x:a.budget, y:a.surprise, id:a.id, name:a.name, sel: activePlan.selected[cat.key]===a.id})),
       backgroundColor: seriesColors[cat.key],
       pointRadius: ctx => ctx.raw && ctx.raw.sel ? 9 : 5,
       pointBorderColor: ctx => ctx.raw && ctx.raw.sel ? '#242320' : seriesColors[cat.key],
@@ -640,8 +841,21 @@ function renderRadar(sel){
   });
 }
 
+function switchPlan(planId){
+  data.activePlan = planId;
+  renderAll();
+  scheduleSave();
+}
+
+function renamePlan(planId, value){
+  const plan = data.plans.find(p=>p.id===planId);
+  if(plan) plan.name = value.trim() || plan.name;
+  renderAll();
+  scheduleSave();
+}
+
 function selectArtist(catKey, id){
-  data.selected[catKey] = id;
+  getActivePlan().selected[catKey] = id;
   renderAll();
   scheduleSave();
 }
@@ -696,9 +910,6 @@ function addArtist(){
   const imageUrl = document.getElementById('new-photo').value.trim();
   const newId = data.nextId++;
   data.artists.push({id:newId, name, budget, surprise, ages, categories, imageUrl});
-  categories.forEach(ck=>{
-    if(!data.selected[ck]) data.selected[ck] = newId;
-  });
   renderAll();
   scheduleSave();
 }
@@ -710,7 +921,7 @@ document.getElementById('capInput').addEventListener('change', (e)=>{
 });
 
 document.getElementById('resetBtn').addEventListener('click', ()=>{
-  if(confirm('確定要還原成預設藝人清單嗎？目前的調整將會被覆蓋。')){
+  if(confirm('確定要還原成預設藝人清單與方案嗎？目前的調整將會被覆蓋。')){
     data = JSON.parse(JSON.stringify(defaultData));
     renderAll();
     scheduleSave();
