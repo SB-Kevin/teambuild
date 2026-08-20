@@ -233,6 +233,20 @@
     </div>
   </div>
 
+  <div class="cardbox">
+    <p class="section-title" style="margin-top:0;">備份與搬移資料</p>
+    <p class="note" style="margin-bottom:12px;">如果你在不同瀏覽器/電腦之間切換，或剛設定好共用資料庫，可以在「原本有資料的那個瀏覽器」按匯出，複製內容後，到「目前這個畫面」貼上並匯入，資料就會搬過來並套用到目前的儲存位置。</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+      <button id="exportBtn">📋 匯出目前資料（複製到剪貼簿）</button>
+    </div>
+    <textarea id="importArea" placeholder="把從別的瀏覽器匯出的內容貼在這裡" style="width:100%;min-height:80px;font-size:12px;font-family:monospace;border:0.5px solid var(--border-strong);border-radius:6px;padding:8px;"></textarea>
+    <div style="margin-top:8px;">
+      <button id="importBtn">📥 匯入並取代目前資料</button>
+      <span class="err" id="importErr" style="display:none;">貼上的內容格式不正確，請確認是完整複製匯出的內容</span>
+      <span class="unset" id="importOk" style="display:none;color:var(--ok);">匯入成功，資料已更新</span>
+    </div>
+  </div>
+
   <button class="reset" id="resetBtn">還原成預設藝人清單與方案</button>
 </div>
 
@@ -328,6 +342,52 @@ function normalizeData(){
   });
 }
 
+function migrateLoadedData(parsed){
+  if(!parsed || typeof parsed !== 'object') return null;
+  // 已是最新格式（含 artists + plans）
+  if(parsed.artists && parsed.plans){ return parsed; }
+
+  let artists = null, selectedMap = null, nextId = parsed.nextId || 100;
+
+  // 舊格式：artists 陣列 + 單一 selected（尚未有「方案」維度）
+  if(parsed.artists && parsed.selected){
+    artists = parsed.artists;
+    selectedMap = parsed.selected;
+  }
+  // 更早格式：categories[].options[]（尚未有共用藝人資料庫）
+  else if(parsed.categories){
+    artists = [];
+    parsed.categories.forEach(cat=>{
+      (cat.options||[]).forEach(o=>{
+        artists.push({
+          id:o.id,
+          name:o.name,
+          budget: (typeof o.budget === 'number' ? o.budget : null),
+          surprise: (typeof o.surprise === 'number' ? o.surprise : 5),
+          ages: Array.isArray(o.ages) ? o.ages : [],
+          categories: [cat.key],
+          imageUrl: o.imageUrl || ''
+        });
+      });
+    });
+    selectedMap = parsed.selected || {};
+  }
+
+  if(!artists) return null;
+
+  return {
+    budgetCap: typeof parsed.budgetCap === 'number' ? parsed.budgetCap : defaultData.budgetCap,
+    artists,
+    plans: [
+      {id:'p1', name:'方案一', selected: Object.assign({}, selectedMap)},
+      {id:'p2', name:'方案二', selected: Object.assign({}, selectedMap)},
+      {id:'p3', name:'方案三', selected: Object.assign({}, selectedMap)}
+    ],
+    activePlan: 'p1',
+    nextId
+  };
+}
+
 function initSharedMode(){
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
@@ -335,11 +395,14 @@ function initSharedMode(){
   setStatus('連線中...');
   dataRef.on('value', (snapshot)=>{
     const val = snapshot.val();
-    if(val && val.artists && val.plans){
-      data = val;
+    const migrated = migrateLoadedData(val);
+    if(migrated){
+      data = migrated;
       normalizeData();
       renderAll();
-      setStatus('已連線，所有人看到同一份即時資料');
+      const wasOldFormat = val && !(val.artists && val.plans);
+      setStatus(wasOldFormat ? '已從舊格式資料轉換完成，資料已保留' : '已連線，所有人看到同一份即時資料');
+      if(wasOldFormat){ saveData(); }
     }else{
       dataRef.set(data).then(()=> setStatus('已建立共用資料，所有人看到同一份即時資料'));
     }
@@ -353,7 +416,8 @@ function initLocalMode(){
     const raw = localStorage.getItem(STORAGE_KEY);
     if(raw){
       const parsed = JSON.parse(raw);
-      if(parsed && parsed.artists && parsed.plans){ data = parsed; }
+      const migrated = migrateLoadedData(parsed);
+      if(migrated){ data = migrated; }
     }
   }catch(e){}
   normalizeData();
@@ -913,6 +977,38 @@ function addArtist(){
   renderAll();
   scheduleSave();
 }
+
+document.getElementById('exportBtn').addEventListener('click', async ()=>{
+  const text = JSON.stringify(data, null, 2);
+  try{
+    await navigator.clipboard.writeText(text);
+    setStatus('已複製目前資料到剪貼簿，可以貼到另一個瀏覽器的匯入框', false);
+  }catch(e){
+    const ta = document.getElementById('importArea');
+    ta.value = text;
+    ta.select();
+    setStatus('無法自動複製，已把內容放進下面的框，請手動全選複製', true);
+  }
+});
+
+document.getElementById('importBtn').addEventListener('click', ()=>{
+  const raw = document.getElementById('importArea').value.trim();
+  const errEl = document.getElementById('importErr');
+  const okEl = document.getElementById('importOk');
+  errEl.style.display = 'none';
+  okEl.style.display = 'none';
+  try{
+    const parsed = JSON.parse(raw);
+    const migrated = migrateLoadedData(parsed);
+    if(!migrated){ throw new Error('unrecognized format'); }
+    data = migrated;
+    renderAll();
+    scheduleSave();
+    okEl.style.display = 'inline';
+  }catch(e){
+    errEl.style.display = 'inline';
+  }
+});
 
 document.getElementById('capInput').addEventListener('change', (e)=>{
   data.budgetCap = Number(e.target.value) || 0;
