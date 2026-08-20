@@ -18,9 +18,10 @@
     font-family:-apple-system,"PingFang TC","Noto Sans TC",Segoe UI,Helvetica,Arial,sans-serif;
     padding:24px 16px 64px;
   }
-  .wrap{max-width:920px;margin:0 auto;}
+  .wrap{max-width:960px;margin:0 auto;}
   h1{font-size:20px;font-weight:600;margin:0 0 4px;}
   .sub{font-size:13px;color:var(--text-2);margin:0 0 20px;}
+  .note{font-size:12px;color:var(--text-muted);background:#efece2;border-radius:8px;padding:8px 12px;margin:0 0 16px;}
   .status{font-size:12px;color:var(--text-muted);margin:0 0 16px;min-height:16px;}
   .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;}
   .metric{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px;}
@@ -44,18 +45,24 @@
   @media (max-width:640px){.overview{grid-template-columns:1fr;}}
   .ovcard{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px;}
   .ovcard .cap{font-size:13px;color:var(--text-2);margin:0 0 10px;}
-  .cat{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:14px;}
-  .cat h2{font-size:15px;font-weight:600;margin:0 0 10px;display:flex;align-items:center;gap:8px;}
-  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
-  .row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--border);flex-wrap:wrap;}
-  .row:last-of-type{border-bottom:none;}
-  .row .name{flex:1;min-width:70px;font-size:14px;}
-  .row .lbl{font-size:11px;color:var(--text-muted);white-space:nowrap;}
+
+  .cardbox{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:14px;}
+
+  .avatar{width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:600;color:#fff;object-fit:cover;background-size:cover;background-position:center;}
+  .arow{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border);flex-wrap:wrap;}
+  .arow:last-of-type{border-bottom:none;}
+  .acol{display:flex;flex-direction:column;gap:6px;min-width:120px;}
+  .arow .lbl{font-size:11px;color:var(--text-muted);white-space:nowrap;}
+  .chiprow{display:flex;gap:4px;flex-wrap:wrap;}
+
   input[type=text],input[type=number]{
     border:0.5px solid var(--border-strong); border-radius:6px; padding:5px 8px;
     font-size:13px; background:#fff; color:var(--text);
   }
-  input[type=number]{width:60px;}
+  input.budget-input{width:74px;}
+  input.name-input{font-weight:600;min-width:90px;}
+  input.photo-input{width:100%;min-width:160px;}
   input[type=range]{width:70px;}
   button{
     border:0.5px solid var(--border-strong); background:#fff; border-radius:6px;
@@ -63,34 +70,60 @@
   }
   button:hover{background:var(--bg);}
   button:active{transform:scale(0.98);}
-  .icon-btn{width:28px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--danger);border-color:var(--border);}
+  .icon-btn{width:28px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--danger);border-color:var(--border);flex-shrink:0;}
   .surprise-out{font-size:13px;font-weight:600;min-width:16px;text-align:center;}
-  .agechips{display:flex;gap:4px;}
-  .agechip{
+
+  .chip{
     font-size:11px;padding:3px 7px;border-radius:999px;border:0.5px solid var(--border-strong);
     background:#fff;color:var(--text-muted);cursor:pointer;user-select:none;
   }
-  .agechip.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .chip.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .chip.cat-open.on{background:var(--c-open);border-color:var(--c-open);}
+  .chip.cat-host.on{background:var(--c-host);border-color:var(--c-host);}
+  .chip.cat-mid.on{background:var(--c-mid);border-color:var(--c-mid);}
+  .chip.cat-final.on{background:var(--c-final);border-color:var(--c-final);}
+
   .cp{font-size:12px;color:var(--text-2);white-space:nowrap;padding:3px 7px;border-radius:6px;background:var(--bg);}
   .cp.best{color:#712b13;background:#faeeda;font-weight:600;}
-  .addrow{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
-  .addrow input[type=text]{flex:1;min-width:100px;}
+  .unset{font-size:12px;color:var(--text-muted);font-style:normal;}
+
+  .addbox{border-top:1px dashed var(--border-strong);margin-top:12px;padding-top:12px;}
+  .addbox .title{font-size:13px;font-weight:600;margin:0 0 8px;}
   .err{color:var(--danger);font-size:12px;margin-left:4px;display:none;}
+
+  .assign-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--border);}
+  .assign-row:last-of-type{border-bottom:none;}
+  .assign-row .name{flex:1;font-size:14px;}
+  .empty-hint{font-size:13px;color:var(--text-muted);padding:8px 0;}
+
   .chartbox{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px;margin-top:8px;}
   .chartbox p{font-size:13px;color:var(--text-2);margin:0 0 12px;}
   .legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;font-size:12px;color:var(--text-2);}
   .legend span{display:flex;align-items:center;gap:5px;}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
   .reset{margin-top:8px;}
   .donut-wrap{position:relative;height:220px;}
   .donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;}
   .donut-center .v{font-size:22px;font-weight:600;line-height:1.1;}
   .donut-center .l{font-size:11px;color:var(--text-2);}
+
+  .rundown{display:flex;align-items:stretch;gap:6px;flex-wrap:wrap;overflow-x:auto;padding-bottom:4px;}
+  .rd-card{flex:1;min-width:140px;background:var(--card);border:0.5px solid var(--border);border-radius:12px;
+    padding:14px 12px;text-align:center;}
+  .rd-step{font-size:11px;color:var(--text-muted);margin-bottom:6px;}
+  .rd-avatar{width:56px;height:56px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;
+    font-size:18px;font-weight:600;color:#fff;object-fit:cover;background-size:cover;background-position:center;}
+  .rd-seg{font-size:12px;color:var(--text-2);margin-bottom:2px;}
+  .rd-name{font-size:14px;font-weight:600;margin-bottom:6px;}
+  .rd-budget{font-size:12px;display:inline-block;padding:2px 8px;border-radius:999px;background:var(--bg);color:var(--text-2);}
+  .rd-arrow{display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--text-muted);padding:0 2px;}
+  @media (max-width:640px){.rd-arrow{transform:rotate(90deg);}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>91APP 2026 尾牙藝人比較儀表板</h1>
-  <p class="sub">開場表演 / 主持人 / 中場表演 / 壓軸，四段落各自比較預算與驚訝程度，資料會自動同步。</p>
+  <p class="sub">開場表演 / 主持人 / 中場表演 / 壓軸，可統一管理藝人資料庫，一位藝人也能同時支援多個段落。</p>
   <p class="status" id="status"></p>
 
   <div class="summary" id="summary"></div>
@@ -106,12 +139,18 @@
     </div>
     <div class="track"><div class="fill" id="budgetFill" style="width:0%;background:var(--accent);"></div></div>
     <div class="coverage" id="coverage"></div>
+    <p class="unset" id="unsetNote" style="margin:8px 0 0;"></p>
+  </div>
+
+  <p class="section-title">尾牙 Rundown</p>
+  <div class="cardbox">
+    <div class="rundown" id="rundown"></div>
   </div>
 
   <p class="section-title">整體總覽 — 目前選擇的組合</p>
   <div class="overview">
     <div class="ovcard">
-      <p class="cap">預算分配（依段落占比）</p>
+      <p class="cap">預算分配（依段落占比，未定價暫不計入）</p>
       <div class="donut-wrap">
         <canvas id="donutChart" role="img" aria-label="甜甜圈圖：顯示開場、主持、中場、壓軸四段落各自佔總預算的比例"></canvas>
         <div class="donut-center"><div class="v" id="donutCenterV">0 萬</div><div class="l">總預算</div></div>
@@ -125,15 +164,19 @@
     </div>
   </div>
 
-  <p class="section-title">調整各段落藝人</p>
-  <div id="cats"></div>
+  <p class="section-title">藝人資料庫</p>
+  <p class="note">因肖像權與版權限制，無法自動抓取藝人本人的網路照片。你可以在下面「照片網址」欄位貼上你有權使用的圖片連結（例如經紀公司提供的官方圖），沒有貼的話會顯示姓名縮寫的預設頭像。一位藝人可以同時勾選多個段落（例如可主持也可開場）。</p>
+  <div class="cardbox" id="roster"></div>
+
+  <p class="section-title">指派各段落人選</p>
+  <div id="assign"></div>
 
   <p class="section-title">所有候選藝人比較</p>
   <div class="chartbox">
-    <p>預算（萬元）vs 驚訝程度（1-10），實心圈為目前已選擇，CP值 = 驚訝程度 ÷ 預算 ×10（數字愈高愈划算）</p>
+    <p>預算（萬元）vs 驚訝程度（1-10），實心圈為目前已選擇，CP值 = 驚訝程度 ÷ 預算 ×10（未定價者不列入）</p>
     <div class="legend" id="legend"></div>
     <div style="position:relative;height:280px;">
-      <canvas id="chart" role="img" aria-label="散佈圖：X軸為預算萬元，Y軸為驚訝程度1到10分，四種顏色分別代表開場、主持、中場、壓軸">散佈圖顯示各候選藝人的預算與驚訝程度分布。</canvas>
+      <canvas id="chart" role="img" aria-label="散佈圖：X軸為預算萬元，Y軸為驚訝程度1到10分">散佈圖顯示各候選藝人的預算與驚訝程度分布。</canvas>
     </div>
   </div>
 
@@ -146,27 +189,30 @@
 <script>
 const STORAGE_KEY = 'weiya-2026-dashboard';
 const seriesColors = {open:'#2a78d6', host:'#eb6834', mid:'#1baf7a', final:'#eda100'};
+const CATS = [
+  {key:'open', label:'開場表演'},
+  {key:'host', label:'主持人'},
+  {key:'mid', label:'中場表演'},
+  {key:'final', label:'壓軸'}
+];
 const AGE_KEYS = ['old','mid','young'];
 const AGE_LABELS = {old:'老', mid:'中', young:'青'};
+const AVATAR_PALETTE = ['#2a78d6','#eb6834','#1baf7a','#eda100','#8f5fd6','#d64f7c'];
 
 const defaultData = {
   budgetCap: 150,
-  categories: [
-    {key:'open', label:'開場表演', options:[
-      {id:1,name:'芒果醬',budget:20,surprise:7,ages:['mid','young']}
-    ]},
-    {key:'host', label:'主持人', options:[
-      {id:2,name:'邰智源',budget:40,surprise:9,ages:['old','mid','young']},
-      {id:3,name:'阿Ken',budget:40,surprise:8,ages:['mid','young']},
-      {id:4,name:'瑪利歐',budget:10,surprise:6,ages:['old','mid']},
-      {id:5,name:'梅賢智',budget:8,surprise:5,ages:['old','mid']}
-    ]},
-    {key:'mid', label:'中場表演', options:[
-      {id:6,name:'李聖傑',budget:20,surprise:5,ages:['old','mid']}
-    ]},
-    {key:'final', label:'壓軸', options:[
-      {id:7,name:'怕胖團',budget:40,surprise:8,ages:['mid','young']}
-    ]}
+  artists: [
+    {id:1, name:'芒果醬', budget:20, surprise:7, ages:['mid','young'], categories:['open'], imageUrl:''},
+    {id:2, name:'邰智源', budget:40, surprise:9, ages:['old','mid','young'], categories:['host'], imageUrl:''},
+    {id:3, name:'阿Ken', budget:40, surprise:8, ages:['mid','young'], categories:['host'], imageUrl:''},
+    {id:4, name:'瑪利歐', budget:10, surprise:6, ages:['old','mid'], categories:['host'], imageUrl:''},
+    {id:5, name:'梅賢智', budget:8, surprise:5, ages:['old','mid'], categories:['host'], imageUrl:''},
+    {id:6, name:'李聖傑', budget:20, surprise:5, ages:['old','mid'], categories:['mid'], imageUrl:''},
+    {id:7, name:'怕胖團', budget:40, surprise:8, ages:['mid','young'], categories:['final'], imageUrl:''},
+    {id:8, name:'台通', budget:null, surprise:5, ages:[], categories:['host'], imageUrl:''},
+    {id:9, name:'凱莉', budget:null, surprise:5, ages:[], categories:['host'], imageUrl:''},
+    {id:10, name:'布萊克薛薛', budget:null, surprise:5, ages:[], categories:['host'], imageUrl:''},
+    {id:11, name:'Alin', budget:null, surprise:5, ages:[], categories:['host','open'], imageUrl:''}
   ],
   selected: {open:1, host:2, mid:6, final:7},
   nextId: 100
@@ -196,6 +242,25 @@ const isFirebaseConfigured = firebaseConfig && typeof firebaseConfig === 'object
 
 let dataRef = null;
 
+function normalizeData(){
+  if(typeof data.budgetCap !== 'number') data.budgetCap = defaultData.budgetCap;
+  if(!Array.isArray(data.artists)) data.artists = [];
+  if(!data.selected) data.selected = {};
+  data.artists.forEach(a=>{
+    if(!Array.isArray(a.ages)) a.ages = [];
+    if(!Array.isArray(a.categories)) a.categories = [];
+    if(typeof a.imageUrl !== 'string') a.imageUrl = '';
+    if(typeof a.budget !== 'number') a.budget = null;
+  });
+  CATS.forEach(cat=>{
+    const list = artistsForCategory(cat.key);
+    const cur = data.selected[cat.key];
+    if(!list.find(a=>a.id===cur)){
+      data.selected[cat.key] = list.length ? list[0].id : null;
+    }
+  });
+}
+
 function initSharedMode(){
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
@@ -203,9 +268,9 @@ function initSharedMode(){
   setStatus('連線中...');
   dataRef.on('value', (snapshot)=>{
     const val = snapshot.val();
-    if(val && val.categories && val.selected){
+    if(val && val.artists && val.selected){
       data = val;
-      if(typeof data.budgetCap !== 'number') data.budgetCap = defaultData.budgetCap;
+      normalizeData();
       renderAll();
       setStatus('已連線，所有人看到同一份即時資料');
     }else{
@@ -221,12 +286,10 @@ function initLocalMode(){
     const raw = localStorage.getItem(STORAGE_KEY);
     if(raw){
       const parsed = JSON.parse(raw);
-      if(parsed && parsed.categories && parsed.selected){
-        data = parsed;
-        if(typeof data.budgetCap !== 'number') data.budgetCap = defaultData.budgetCap;
-      }
+      if(parsed && parsed.artists && parsed.selected){ data = parsed; }
     }
   }catch(e){}
+  normalizeData();
   setStatus('尚未設定共享資料庫，目前僅存在你自己的瀏覽器，其他人看不到這裡的修改（見程式碼開頭的 Firebase 設定說明）', true);
   renderAll();
 }
@@ -254,96 +317,202 @@ function loadData(){
   else{ initLocalMode(); }
 }
 
-function metricCard(label, value){
-  return '<div class="metric"><p class="l">'+label+'</p><p class="v">'+value+'</p></div>';
-}
-
-function cpValue(o){
-  if(!o.budget || o.budget<=0) return null;
-  return Math.round((o.surprise / o.budget) * 10 * 10) / 10;
-}
-
-function bestCpId(cat){
-  let best = null, bestVal = -1;
-  cat.options.forEach(o=>{
-    const v = cpValue(o);
-    if(v !== null && v > bestVal){ bestVal = v; best = o.id; }
-  });
-  return cat.options.length > 1 ? best : null;
-}
-
-function agechips(catKey, o){
-  return '<div class="agechips">' + AGE_KEYS.map(k=>{
-    const on = o.ages && o.ages.indexOf(k) !== -1;
-    return '<span class="agechip'+(on?' on':'')+'" role="button" tabindex="0" aria-pressed="'+on+'" '+
-      'onclick="toggleAge(\''+catKey+'\','+o.id+',\''+k+'\')" '+
-      'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();toggleAge(\''+catKey+'\','+o.id+',\''+k+'\');}">'+AGE_LABELS[k]+'</span>';
-  }).join('') + '</div>';
-}
-
-function catCard(cat){
-  const bestId = bestCpId(cat);
-  const rows = cat.options.map(o=>{
-    const checked = data.selected[cat.key]===o.id ? 'checked' : '';
-    const delBtn = cat.options.length>1
-      ? '<button class="icon-btn" aria-label="移除'+o.name+'" onclick="removeOpt(\''+cat.key+'\','+o.id+')">✕</button>'
-      : '<span style="width:28px;display:inline-block;"></span>';
-    const cp = cpValue(o);
-    const cpLabel = cp === null ? 'CP -' : 'CP '+cp;
-    const isBest = bestId === o.id;
-    return '<div class="row">' +
-      '<input type="radio" name="sel-'+cat.key+'" '+checked+' onchange="selectOpt(\''+cat.key+'\','+o.id+')" style="width:16px;height:16px;">' +
-      '<span class="name">'+escapeHtml(o.name)+'</span>' +
-      agechips(cat.key, o) +
-      '<span class="lbl">預算</span>' +
-      '<input type="number" value="'+o.budget+'" min="0" step="1" onchange="editField(\''+cat.key+'\','+o.id+',\'budget\',this.value)">' +
-      '<span class="lbl">萬</span>' +
-      '<span class="lbl">驚訝</span>' +
-      '<input type="range" min="1" max="10" step="1" value="'+o.surprise+'" oninput="this.nextElementSibling.textContent=this.value" onchange="editField(\''+cat.key+'\','+o.id+',\'surprise\',this.value)">' +
-      '<span class="surprise-out">'+o.surprise+'</span>' +
-      '<span class="cp'+(isBest?' best':'')+'" title="驚訝程度除以預算，數字愈高愈划算">'+cpLabel+(isBest?' ★':'')+'</span>' +
-      delBtn +
-      '</div>';
-  }).join('');
-  return '<div class="cat">' +
-    '<h2><span class="dot" style="background:'+seriesColors[cat.key]+'"></span>'+cat.label+'</h2>' +
-    rows +
-    '<div class="addrow">' +
-      '<input type="text" placeholder="新藝人姓名" id="name-'+cat.key+'">' +
-      '<input type="number" placeholder="預算(萬)" id="budget-'+cat.key+'" min="0" step="1">' +
-      '<span class="lbl">驚訝</span>' +
-      '<input type="range" min="1" max="10" step="1" value="5" id="surprise-'+cat.key+'" oninput="document.getElementById(\'surprise-out-'+cat.key+'\').textContent=this.value">' +
-      '<span class="surprise-out" id="surprise-out-'+cat.key+'">5</span>' +
-      '<span class="lbl">受眾</span>' +
-      AGE_KEYS.map(k=>'<label class="lbl" style="display:flex;align-items:center;gap:2px;"><input type="checkbox" id="age-'+k+'-'+cat.key+'" style="width:14px;height:14px;">'+AGE_LABELS[k]+'</label>').join('') +
-      '<button onclick="addOpt(\''+cat.key+'\')">+ 新增藝人</button>' +
-      '<span class="err" id="err-'+cat.key+'">請輸入姓名</span>' +
-    '</div>' +
-  '</div>';
-}
-
 function escapeHtml(s){
   const d = document.createElement('div');
   d.textContent = s;
   return d.innerHTML;
 }
 
+function findArtist(id){ return data.artists.find(a=>a.id===id); }
+function artistsForCategory(key){ return data.artists.filter(a=> a.categories.indexOf(key) !== -1); }
+
+function avatarColor(name){
+  let h = 0;
+  for(let i=0;i<name.length;i++){ h = (h*31 + name.charCodeAt(i)) % AVATAR_PALETTE.length; }
+  return AVATAR_PALETTE[Math.abs(h) % AVATAR_PALETTE.length];
+}
+
+function avatarHtml(a, size){
+  const initials = a.name ? a.name.trim().slice(0,2) : '?';
+  const dim = size || 36;
+  if(a.imageUrl){
+    return '<div class="avatar" style="width:'+dim+'px;height:'+dim+'px;background-image:url(\''+encodeURI(a.imageUrl)+'\');"></div>';
+  }
+  return '<div class="avatar" style="width:'+dim+'px;height:'+dim+'px;background:'+avatarColor(a.name||'?')+';">'+escapeHtml(initials)+'</div>';
+}
+
+function cpValue(a){
+  if(a.budget===null || a.budget===undefined || a.budget<=0) return null;
+  return Math.round((a.surprise / a.budget) * 10 * 10) / 10;
+}
+
+function metricCard(label, value){
+  return '<div class="metric"><p class="l">'+label+'</p><p class="v">'+value+'</p></div>';
+}
+
 function currentSelection(){
-  return data.categories.map(cat=>({
-    cat, opt: cat.options.find(x=>x.id===data.selected[cat.key])
-  })).filter(x=>x.opt);
+  return CATS.map(cat=>({ cat, opt: findArtist(data.selected[cat.key]) })).filter(x=>x.opt);
+}
+
+function catChips(a){
+  return '<div class="chiprow">' + CATS.map(c=>{
+    const on = a.categories.indexOf(c.key) !== -1;
+    return '<span class="chip cat-'+c.key+(on?' on':'')+'" role="button" tabindex="0" aria-pressed="'+on+'" '+
+      'onclick="toggleArtistCategory('+a.id+',\''+c.key+'\')" '+
+      'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();toggleArtistCategory('+a.id+',\''+c.key+'\');}">'+c.label+'</span>';
+  }).join('') + '</div>';
+}
+
+function ageChips(a){
+  return '<div class="chiprow">' + AGE_KEYS.map(k=>{
+    const on = a.ages.indexOf(k) !== -1;
+    return '<span class="chip'+(on?' on':'')+'" role="button" tabindex="0" aria-pressed="'+on+'" '+
+      'onclick="toggleArtistAge('+a.id+',\''+k+'\')" '+
+      'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();toggleArtistAge('+a.id+',\''+k+'\');}">'+AGE_LABELS[k]+'</span>';
+  }).join('') + '</div>';
+}
+
+function artistRow(a){
+  const cp = cpValue(a);
+  const budgetVal = a.budget===null || a.budget===undefined ? '' : a.budget;
+  return '<div class="arow">' +
+    avatarHtml(a, 36) +
+    '<div class="acol" style="min-width:100px;">' +
+      '<input type="text" class="name-input" value="'+escapeHtml(a.name)+'" onchange="editArtistField('+a.id+',\'name\',this.value)">' +
+      '<span class="lbl">段落</span>' + catChips(a) +
+    '</div>' +
+    '<div class="acol" style="min-width:90px;">' +
+      '<span class="lbl">預算（萬，未定可留空）</span>' +
+      '<input type="number" class="budget-input" placeholder="未定" value="'+budgetVal+'" min="0" step="1" onchange="editArtistField('+a.id+',\'budget\',this.value)">' +
+    '</div>' +
+    '<div class="acol" style="min-width:90px;">' +
+      '<span class="lbl">驚訝程度</span>' +
+      '<div style="display:flex;align-items:center;gap:6px;">' +
+        '<input type="range" min="1" max="10" step="1" value="'+a.surprise+'" oninput="this.nextElementSibling.textContent=this.value" onchange="editArtistField('+a.id+',\'surprise\',this.value)">' +
+        '<span class="surprise-out">'+a.surprise+'</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="acol" style="min-width:80px;">' +
+      '<span class="lbl">受眾年齡層</span>' + ageChips(a) +
+    '</div>' +
+    '<div class="acol" style="flex:1;min-width:160px;">' +
+      '<span class="lbl">照片網址（選填）</span>' +
+      '<input type="text" class="photo-input" placeholder="貼上你有權使用的圖片連結" value="'+escapeHtml(a.imageUrl)+'" onchange="editArtistField('+a.id+',\'imageUrl\',this.value)">' +
+    '</div>' +
+    '<div class="acol" style="min-width:60px;align-items:center;">' +
+      '<span class="cp'+(cp!==null?'':' unset')+'" title="驚訝程度除以預算，數字愈高愈划算">'+(cp===null?'CP -':'CP '+cp)+'</span>' +
+      '<button class="icon-btn" aria-label="移除'+escapeHtml(a.name)+'" onclick="removeArtist('+a.id+')">✕</button>' +
+    '</div>' +
+  '</div>';
+}
+
+function renderRoster(){
+  const rows = data.artists.map(artistRow).join('');
+  const addForm = '<div class="addbox">' +
+    '<p class="title">＋ 新增藝人</p>' +
+    '<div class="arow" style="border-bottom:none;">' +
+      '<div class="acol" style="min-width:120px;">' +
+        '<span class="lbl">姓名</span>' +
+        '<input type="text" id="new-name" placeholder="藝人姓名">' +
+        '<span class="lbl">可支援段落</span>' +
+        '<div class="chiprow">' + CATS.map(c=>'<label class="chip" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;">'+
+          '<input type="checkbox" id="new-cat-'+c.key+'" style="width:13px;height:13px;">'+c.label+'</label>').join('') + '</div>' +
+      '</div>' +
+      '<div class="acol" style="min-width:90px;">' +
+        '<span class="lbl">預算（萬，未定可留空）</span>' +
+        '<input type="number" class="budget-input" id="new-budget" placeholder="未定" min="0" step="1">' +
+      '</div>' +
+      '<div class="acol" style="min-width:90px;">' +
+        '<span class="lbl">驚訝程度</span>' +
+        '<div style="display:flex;align-items:center;gap:6px;">' +
+          '<input type="range" min="1" max="10" step="1" value="5" id="new-surprise" oninput="document.getElementById(\'new-surprise-out\').textContent=this.value">' +
+          '<span class="surprise-out" id="new-surprise-out">5</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="acol" style="min-width:80px;">' +
+        '<span class="lbl">受眾年齡層</span>' +
+        '<div class="chiprow">' + AGE_KEYS.map(k=>'<label class="chip" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;">'+
+          '<input type="checkbox" id="new-age-'+k+'" style="width:13px;height:13px;">'+AGE_LABELS[k]+'</label>').join('') + '</div>' +
+      '</div>' +
+      '<div class="acol" style="flex:1;min-width:160px;">' +
+        '<span class="lbl">照片網址（選填）</span>' +
+        '<input type="text" class="photo-input" id="new-photo" placeholder="貼上你有權使用的圖片連結">' +
+      '</div>' +
+      '<div class="acol" style="min-width:90px;align-items:flex-start;">' +
+        '<button onclick="addArtist()">+ 新增</button>' +
+        '<span class="err" id="new-err">請輸入姓名並至少勾選一個段落</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+  document.getElementById('roster').innerHTML = rows + addForm;
+}
+
+function renderAssign(){
+  const html = CATS.map(cat=>{
+    const list = artistsForCategory(cat.key);
+    let bestId = null, bestVal = -1;
+    list.forEach(a=>{ const v = cpValue(a); if(v!==null && v>bestVal){ bestVal=v; bestId=a.id; } });
+    const rows = list.length ? list.map(a=>{
+      const checked = data.selected[cat.key]===a.id ? 'checked' : '';
+      const cp = cpValue(a);
+      const budgetLabel = a.budget===null ? '未定金額' : a.budget+' 萬';
+      return '<div class="assign-row">' +
+        '<input type="radio" name="assign-'+cat.key+'" '+checked+' onchange="selectArtist(\''+cat.key+'\','+a.id+')" style="width:16px;height:16px;">' +
+        avatarHtml(a, 30) +
+        '<span class="name">'+escapeHtml(a.name)+'</span>' +
+        '<span class="lbl" style="font-size:12px;">'+budgetLabel+'</span>' +
+        '<span class="lbl" style="font-size:12px;">驚訝 '+a.surprise+'</span>' +
+        '<span class="cp'+(cp!==null && a.id===bestId?' best':'')+'">'+(cp===null?'CP -':'CP '+cp+(a.id===bestId?' ★':''))+'</span>' +
+        '</div>';
+    }).join('') : '<p class="empty-hint">尚無藝人標記此段落，請到上方「藝人資料庫」勾選對應段落。</p>';
+    return '<div class="cardbox">' +
+      '<h2 style="font-size:15px;font-weight:600;margin:0 0 8px;display:flex;align-items:center;gap:8px;">' +
+        '<span class="dot" style="background:'+seriesColors[cat.key]+'"></span>'+cat.label +
+      '</h2>' + rows + '</div>';
+  }).join('');
+  document.getElementById('assign').innerHTML = html;
+}
+
+function renderRundown(){
+  const sel = currentSelection();
+  const cards = CATS.map((cat, idx)=>{
+    const found = sel.find(x=>x.cat.key===cat.key);
+    const inner = found ?
+      avatarHtml(found.opt, 56).replace('avatar','rd-avatar') +
+      '<div class="rd-name">'+escapeHtml(found.opt.name)+'</div>' +
+      '<div class="rd-budget">'+(found.opt.budget===null?'未定金額':found.opt.budget+' 萬')+'</div>'
+      : '<div class="rd-avatar" style="background:#d8d5ca;">?</div><div class="rd-name" style="color:var(--text-muted);">尚未選定</div>';
+    let html = '<div class="rd-card">' +
+      '<div class="rd-step">STEP '+(idx+1)+'</div>' +
+      '<div class="rd-seg">'+cat.label+'</div>' +
+      inner +
+    '</div>';
+    if(idx < CATS.length-1){ html += '<div class="rd-arrow">›</div>'; }
+    return html;
+  }).join('');
+  document.getElementById('rundown').innerHTML = cards;
 }
 
 function renderAll(){
-  document.getElementById('cats').innerHTML = data.categories.map(catCard).join('');
+  normalizeData();
+  renderRoster();
+  renderAssign();
+  renderRundown();
+
   const sel = currentSelection();
-  const totalBudget = sel.reduce((s,x)=>s+x.opt.budget,0);
+  const priced = sel.filter(x=>x.opt.budget!==null);
+  const totalBudget = priced.reduce((s,x)=>s+x.opt.budget,0);
   const totalSurprise = sel.reduce((s,x)=>s+x.opt.surprise,0);
   const avgSurprise = sel.length ? (totalSurprise/sel.length).toFixed(1) : '0.0';
   document.getElementById('summary').innerHTML =
-    metricCard('目前組合總預算', totalBudget.toLocaleString()+' 萬') +
+    metricCard('目前組合總預算（已定價部分）', totalBudget.toLocaleString()+' 萬') +
     metricCard('平均驚訝程度', avgSurprise+' / 10') +
-    metricCard('候選藝人總數', data.categories.reduce((s,c)=>s+c.options.length,0)+' 位');
+    metricCard('候選藝人總數', data.artists.length+' 位');
+
+  const unpriced = sel.length - priced.length;
+  document.getElementById('unsetNote').textContent = unpriced > 0
+    ? '目前選擇中有 '+unpriced+' 位藝人費用尚未確定，未計入總預算與圖表。'
+    : '';
 
   const capInput = document.getElementById('capInput');
   if(document.activeElement !== capInput){ capInput.value = data.budgetCap; }
@@ -363,20 +532,22 @@ function renderAll(){
     return '<span class="covchip '+(ok?'ok':'miss')+'">'+AGE_LABELS[k]+'（'+(ok?'已覆蓋':'未覆蓋')+'）</span>';
   }).join('');
 
-  document.getElementById('legend').innerHTML = data.categories.map(c=>
+  document.getElementById('legend').innerHTML = CATS.map(c=>
     '<span><span class="dot" style="background:'+seriesColors[c.key]+'"></span>'+c.label+'</span>'
   ).join('');
   document.getElementById('donutCenterV').textContent = totalBudget.toLocaleString()+' 萬';
+
   renderChart();
-  renderDonut(sel, totalBudget);
+  renderDonut(priced, totalBudget);
   renderRadar(sel);
 }
 
 function renderChart(){
-  const datasets = data.categories.map(cat=>{
+  const datasets = CATS.map(cat=>{
+    const list = artistsForCategory(cat.key).filter(a=>a.budget!==null);
     return {
       label: cat.label,
-      data: cat.options.map(o=>({x:o.budget, y:o.surprise, id:o.id, name:o.name, sel: data.selected[cat.key]===o.id})),
+      data: list.map(a=>({x:a.budget, y:a.surprise, id:a.id, name:a.name, sel: data.selected[cat.key]===a.id})),
       backgroundColor: seriesColors[cat.key],
       pointRadius: ctx => ctx.raw && ctx.raw.sel ? 9 : 5,
       pointBorderColor: ctx => ctx.raw && ctx.raw.sel ? '#242320' : seriesColors[cat.key],
@@ -401,11 +572,11 @@ function renderChart(){
   });
 }
 
-function renderDonut(sel, totalBudget){
-  const labels = sel.map(x=>x.cat.label);
-  const values = sel.map(x=>x.opt.budget);
-  const colors = sel.map(x=>seriesColors[x.cat.key]);
-  const names = sel.map(x=>x.opt.name);
+function renderDonut(priced, totalBudget){
+  const labels = priced.map(x=>x.cat.label);
+  const values = priced.map(x=>x.opt.budget);
+  const colors = priced.map(x=>seriesColors[x.cat.key]);
+  const names = priced.map(x=>x.opt.name);
   if(donutChart){
     donutChart.data.labels = labels;
     donutChart.data.datasets[0].data = values;
@@ -469,57 +640,65 @@ function renderRadar(sel){
   });
 }
 
-function selectOpt(catKey,id){
-  data.selected[catKey]=id;
+function selectArtist(catKey, id){
+  data.selected[catKey] = id;
   renderAll();
   scheduleSave();
 }
 
-function editField(catKey,id,field,value){
-  const cat = data.categories.find(c=>c.key===catKey);
-  const o = cat.options.find(x=>x.id===id);
-  o[field] = Number(value);
+function editArtistField(id, field, value){
+  const a = findArtist(id);
+  if(!a) return;
+  if(field === 'name'){ a.name = value.trim() || a.name; }
+  else if(field === 'budget'){ a.budget = value === '' ? null : Number(value); }
+  else if(field === 'surprise'){ a.surprise = Number(value); }
+  else if(field === 'imageUrl'){ a.imageUrl = value.trim(); }
   renderAll();
   scheduleSave();
 }
 
-function toggleAge(catKey,id,ageKey){
-  const cat = data.categories.find(c=>c.key===catKey);
-  const o = cat.options.find(x=>x.id===id);
-  if(!o.ages) o.ages = [];
-  const idx = o.ages.indexOf(ageKey);
-  if(idx === -1){ o.ages.push(ageKey); } else { o.ages.splice(idx,1); }
+function toggleArtistAge(id, ageKey){
+  const a = findArtist(id);
+  const idx = a.ages.indexOf(ageKey);
+  if(idx === -1){ a.ages.push(ageKey); } else { a.ages.splice(idx,1); }
   renderAll();
   scheduleSave();
 }
 
-function removeOpt(catKey,id){
-  const cat = data.categories.find(c=>c.key===catKey);
-  cat.options = cat.options.filter(x=>x.id!==id);
-  if(data.selected[catKey]===id){ data.selected[catKey]=cat.options[0].id; }
+function toggleArtistCategory(id, catKey){
+  const a = findArtist(id);
+  const idx = a.categories.indexOf(catKey);
+  if(idx === -1){ a.categories.push(catKey); } else { a.categories.splice(idx,1); }
   renderAll();
   scheduleSave();
 }
 
-function addOpt(catKey){
-  const nameEl = document.getElementById('name-'+catKey);
-  const budgetEl = document.getElementById('budget-'+catKey);
-  const surpriseEl = document.getElementById('surprise-'+catKey);
-  const errEl = document.getElementById('err-'+catKey);
+function removeArtist(id){
+  data.artists = data.artists.filter(a=>a.id!==id);
+  renderAll();
+  scheduleSave();
+}
+
+function addArtist(){
+  const nameEl = document.getElementById('new-name');
+  const errEl = document.getElementById('new-err');
   const name = nameEl.value.trim();
-  if(!name){
+  const categories = CATS.filter(c=> document.getElementById('new-cat-'+c.key).checked).map(c=>c.key);
+  if(!name || categories.length===0){
     errEl.style.display = 'inline';
-    nameEl.focus();
     return;
   }
   errEl.style.display = 'none';
-  const budget = Number(budgetEl.value) || 0;
-  const surprise = Number(surpriseEl.value) || 5;
-  const ages = AGE_KEYS.filter(k=> document.getElementById('age-'+k+'-'+catKey).checked);
-  const cat = data.categories.find(c=>c.key===catKey);
+  const budgetRaw = document.getElementById('new-budget').value;
+  const budget = budgetRaw === '' ? null : Number(budgetRaw);
+  const surprise = Number(document.getElementById('new-surprise').value) || 5;
+  const ages = AGE_KEYS.filter(k=> document.getElementById('new-age-'+k).checked);
+  const imageUrl = document.getElementById('new-photo').value.trim();
   const newId = data.nextId++;
-  cat.options.push({id:newId, name, budget, surprise, ages});
-  data.selected[catKey] = newId;
+  data.artists.push({id:newId, name, budget, surprise, ages, categories, imageUrl});
+  categories.forEach(ck=>{
+    if(!data.selected[ck]) data.selected[ck] = newId;
+  });
   renderAll();
   scheduleSave();
 }
